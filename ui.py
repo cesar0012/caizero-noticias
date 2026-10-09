@@ -72,6 +72,10 @@ def icon(name, size=18, cls=""):
         "search": '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
         "home": '<path d="M3 11 12 3l9 8M5 10v10h14V10"/>',
         "zap": '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+        "help-circle": '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+        "arrow-right": '<path d="M5 12h14M12 5l7 7-7 7"/>',
+        "lightbulb": '<path d="M9 18h6M10 22h4M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>',
+        "message": '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
     }
     return (f'<svg class="{cls}" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '
             f'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '

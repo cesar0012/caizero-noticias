@@ -14,7 +14,47 @@ def _fmt_date(iso):
         return ""
 
 
-def admin_shell(user, csrf, title, body, active=""):
+# Guía paso a paso por sección (lenguaje llano, para cualquier persona)
+TOURS = {
+    "dashboard": [
+        {"t": "Bienvenido a su panel", "d": "Desde esta pantalla usted controla toda su página web. Nada se rompe: todo lo que escriba se puede editar o borrar después con calma.", "demo": "welcome"},
+        {"t": "Para escribir una noticia", "d": "Pulse este botón. Se abre una página para escribir: título, texto, fotos y video.", "demo": "nueva"},
+        {"t": "Para editar o borrar", "d": "En el menú de la izquierda pulse «Noticias». Ahí está la lista de todo, con los botones Editar y Eliminar.", "demo": "lista"},
+        {"t": "Los mensajes de sus lectores", "d": "Cuando alguien escribe en su página, el mensaje le llega a «Bandeja», en el menú de la izquierda.", "demo": "bandeja"},
+        {"t": "Esta guía, siempre a la mano", "d": "Este botón de interrogación abre la guía en cualquier momento. Pulse «Entendido» para empezar.", "demo": "ayuda"},
+    ],
+    "editor": [
+        {"t": "Escriba el título aquí", "d": "Es la casilla grande de arriba. Ejemplo: «Los Timbers ganan su primer partido».", "demo": "titulo"},
+        {"t": "Agregue el contenido", "d": "Pulse un botón para agregar un cuadro: +Texto para escribir, +Imagen para una foto, +Video para YouTube. Agrege todos los que quiera.", "demo": "bloques"},
+        {"t": "Para cambiar el orden", "d": "Cada cuadro tiene un asa que dice MOVER. Tómela con el mouse y arrastre el cuadro hacia arriba o hacia abajo.", "demo": "mover"},
+        {"t": "La categoría y el autor", "d": "Más abajo elija la categoría (Noticias, Deportes…) y escriba quién firma la nota.", "demo": "campos"},
+        {"t": "No olvide Guardar", "d": "El botón Guardar está arriba, a la derecha. Púlselo cuando termine. ¡Eso es todo!", "demo": "guardar"},
+    ],
+    "posts": [
+        {"t": "Esta es la lista de sus noticias", "d": "Cada línea es una noticia de su página. Verde significa publicada; gris, borrador (nadie la ve todavía).", "demo": "lista"},
+        {"t": "Editar, ver o borrar", "d": "«Editar» abre la noticia para cambiarla. «Ver» la muestra en su página. «Eliminar» la borra: siempre le pediremos confirmar.", "demo": "acciones"},
+        {"t": "Para escribir una nueva", "d": "Pulse el botón Nuevo de arriba, a la derecha.", "demo": "nueva"},
+    ],
+    "pages": [
+        {"t": "Páginas fijas del menú", "d": "Las páginas son secciones que siempre aparecen en el menú, como «Nosotros». Se editan igual que las noticias.", "demo": "lista"},
+    ],
+    "media": [
+        {"t": "Subir fotos o videos", "d": "Arrastre el archivo a este recuadro, o pulse «Elegir archivos». Puede subir varios a la vez.", "demo": "media"},
+        {"t": "Usar una foto en una noticia", "d": "Pulse «Copiar enlace» y pegue ese enlace en el cuadro Imagen de su noticia. Así de simple.", "demo": "copy"},
+    ],
+    "inbox": [
+        {"t": "Aquí llegan los mensajes", "d": "Todo lo que la gente escriba en la página de Contacto aparece en esta lista, con el nombre y el correo de quien escribió.", "demo": "bandeja"},
+        {"t": "Después de leer", "d": "Pulse «Marcar leído» para dejarlo en paz, o «Eliminar» si no quiere guardarlo.", "demo": "acciones"},
+    ],
+    "settings": [
+        {"t": "Su correo de contacto", "d": "Los mensajes del formulario llegarán a este correo. Nota: el primer mensaje pide una activación — abra su correo y pulse el enlace que le llega (solo se hace una vez).", "demo": "campos"},
+        {"t": "Sus redes sociales", "d": "Pegue los enlaces de Facebook o Instagram para que aparezcan en su página, arriba y en el pie.", "demo": "campos"},
+        {"t": "Cambiar la contraseña", "d": "Más abajo puede poner una contraseña fácil de recordar: 10 o más caracteres, con letras y números.", "demo": "pass"},
+    ],
+}
+
+
+def admin_shell(user, csrf, title, body, active="", tour=None):
     nav = [
         ("layout-dashboard", "/admin", "Dashboard", "dashboard"),
         ("file-text", "/admin/posts", "Noticias", "posts"),
@@ -36,8 +76,9 @@ def admin_shell(user, csrf, title, body, active=""):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/admin.css?v=3">
+<link rel="stylesheet" href="/css/admin.css?v=4">
 <script>window.CSRF = {json.dumps(csrf) if False else repr(csrf)};</script>
+<script>window.__TOUR = {json.dumps(TOURS.get(tour or active, []), ensure_ascii=False)};</script>
 </head>
 <body class="admin">
 <div class="admin-shell">
@@ -52,7 +93,25 @@ def admin_shell(user, csrf, title, body, active=""):
   </aside>
   <main class="amain">{body}</main>
 </div>
-<script src="/js/admin.js?v=5" defer></script>
+<button class="help-fab" id="helpBtn" aria-label="Ayuda: guía paso a paso" title="Guía paso a paso">{icon("help-circle", 26)}<span class="help-fab-txt">Ayuda</span></button>
+<div class="tour" id="tour" hidden>
+  <div class="tour-scrim" data-tour-close></div>
+  <div class="tour-card" role="dialog" aria-modal="true" aria-label="Guía paso a paso">
+    <div class="tour-head">
+      <span class="tour-step-num" data-tour-num></span>
+      <button class="icon-btn" data-tour-close aria-label="Cerrar la guía">{icon("x", 20)}</button>
+    </div>
+    <div class="tour-demo" data-tour-demo hidden></div>
+    <h2 class="tour-title" data-tour-title></h2>
+    <p class="tour-text" data-tour-text></p>
+    <div class="tour-dots" data-tour-dots aria-hidden="true"></div>
+    <div class="tour-actions">
+      <button class="btn ghost" data-tour-prev type="button">{icon("arrow-left", 16)} Atrás</button>
+      <button class="btn primary" data-tour-next type="button">Siguiente {icon("arrow-right", 16)}</button>
+    </div>
+  </div>
+</div>
+<script src="/js/admin.js?v=6" defer></script>
 </body>
 </html>'''
 
@@ -74,6 +133,7 @@ def admin_login(error=""):
 <main class="login-card">
   <div class="login-brand"><img src="/img/mark.png" alt="" width="72" height="72"><span><b>El Mañanero</b><i>Deportes</i></span></div>
   <h1>Panel de administración</h1>
+  <p class="login-hint">Escriba su usuario y su contraseña para entrar.</p>
   {err}
   <form method="post" action="/admin/login">
     <label>Usuario
@@ -98,39 +158,55 @@ def admin_home(user, csrf, data):
     pub = [p for p in posts if p.get("status") == "published"]
     drafts = [p for p in posts if p.get("status") != "published"]
     unread = [m for m in data["inbox"] if not m.get("read")]
-    recent = sorted(posts, key=lambda p: p.get("date", ""), reverse=True)[:6]
+    recent = sorted(posts, key=lambda p: p.get("date", ""), reverse=True)[:5]
     rows = "".join(
-        f'<tr><td>{esc(p["title"])}</td><td><span class="badge {"pub" if p.get("status") == "published" else "draft"}">'
-        f'{"Publicado" if p.get("status") == "published" else "Borrador"}</span></td>'
-        f'<td>{_fmt_date(p.get("date"))}</td>'
-        f'<td class="row-actions"><a class="mini" href="/admin/editor/{p["id"]}">{icon("pencil", 15)} Editar</a></td></tr>'
+        f'''<tr><td>{esc(p["title"])}</td>
+        <td><span class="badge {"pub" if p.get("status") == "published" else "draft"}">{"Publicado" if p.get("status") == "published" else "Borrador"}</span></td>
+        <td class="row-actions"><a class="mini" href="/admin/editor/{p["id"]}">{icon("pencil", 15)} Editar</a></td></tr>'''
         for p in recent)
     body = f'''
-    <header class="ahead"><h1>Dashboard</h1>
-      <div class="ahead-actions"><a class="btn primary" href="/admin/editor/new">{icon("plus", 16)} Nueva noticia</a>
-      <a class="btn ghost" href="/admin/pages/editor/new">{icon("plus", 16)} Nueva página</a></div></header>
-    <div class="stats">
-      {stat_card("newspaper", len(pub), "Publicadas")}
-      {stat_card("file-text", len(drafts), "Borradores")}
-      {stat_card("file-text", len(data["pages"]), "Páginas")}
-      {stat_card("inbox", len(unread), "Mensajes nuevos")}
+    <header class="ahead"><h1>Hola, {esc(user)}</h1>
+      <div class="ahead-actions"><a class="btn ghost" href="/admin/pages/editor/new">{icon("plus", 16)} Nueva página</a></div></header>
+
+    <a class="start-hero" href="/admin/editor/new">
+      <span class="start-hero-ic">{icon("pencil", 30)}</span>
+      <span class="start-hero-txt"><b>Escribir una noticia nueva</b>
+      <small>Título, texto, fotos y video. Al final, pulse Guardar y aparecerá en su página.</small></span>
+      {icon("arrow-right", 22)}
+    </a>
+
+    <div class="start-grid">
+      <a class="start-card" href="/admin/posts">
+        {icon("file-text", 24)}<b>Mis noticias</b>
+        <p>{len(pub)} publicadas · {len(drafts)} borradores<br>Editar, ver o borrar</p>
+      </a>
+      <a class="start-card" href="/admin/inbox">
+        {icon("message", 24)}<b>Mensajes</b>
+        <p>{"Tiene " + str(len(unread)) + " sin leer" if unread else "No tiene mensajes nuevos"}<br>De quienes escriben en Contacto</p>
+        {('<span class="bubble">' + str(len(unread)) + "</span>") if unread else ""}
+      </a>
+      <a class="start-card" href="/admin/settings">
+        {icon("settings", 24)}<b>Mi contraseña y redes</b>
+        <p>Cambiar la clave<br>Poner mis redes sociales</p>
+      </a>
     </div>
+
     <section class="panel">
-      <h2>Contenido reciente</h2>
-      <table class="tbl"><thead><tr><th>Título</th><th>Estado</th><th>Fecha</th><th></th></tr></thead>
-      <tbody>{rows or '<tr><td colspan="4" class="muted">Aún no hay contenido.</td></tr>'}</tbody></table>
+      <h2>{icon("lightbulb", 18)} Toda noticia tiene 3 partes</h2>
+      <div class="steps3">
+        <div class="step3"><span>1</span><b>Escriba el título</b><p>En la casilla grande de arriba.</p></div>
+        <div class="step3"><span>2</span><b>Agregue lo que quiera contar</b><p>Con los botones +Texto, +Imagen y +Video.</p></div>
+        <div class="step3"><span>3</span><b>Pulse Guardar</b><p>Arriba, a la derecha. ¡Y listo!</p></div>
+      </div>
     </section>
+
     <section class="panel">
-      <h2>Cómo usar el panel</h2>
-      <ol class="help">
-        <li><b>Noticias</b>: crea notas con título, portada y bloques (texto, imágenes, videos, citas). Arrástralas para ordenarlas.</li>
-        <li><b>Páginas</b>: páginas fijas como Nosotros. Marca "En el menú" para mostrarlas en la navegación.</li>
-        <li><b>Multimedia</b>: sube imágenes y videos; copia su enlace para pegarlos en cualquier bloque.</li>
-        <li><b>Bandeja</b>: los mensajes del formulario de contacto del sitio llegan aquí.</li>
-        <li><b>Ajustes</b>: portada del inicio, redes sociales, correo de contacto y tu contraseña.</li>
-      </ol>
+      <h2>Sus últimas noticias</h2>
+      <table class="tbl"><thead><tr><th>Título</th><th>Estado</th><th></th></tr></thead>
+      <tbody>{rows or '<tr><td colspan="3" class="muted">Aún no hay noticias. La primera puede ser hoy.</td></tr>'}</tbody></table>
+      <p class="panel-foot"><a class="btn ghost" href="/admin/posts">{icon("arrow-right", 15)} Ver todas</a></p>
     </section>'''
-    return admin_shell(user, csrf, "Dashboard", body, "dashboard")
+    return admin_shell(user, csrf, "Inicio", body, "dashboard")
 
 
 def admin_posts(user, csrf, data):
@@ -147,8 +223,9 @@ def admin_posts(user, csrf, data):
         for p in sorted(data["posts"], key=lambda p: p.get("date", ""), reverse=True))
     body = f'''
     <header class="ahead"><h1>Noticias</h1>
-      <div class="ahead-actions"><input id="qa-filter" class="in" type="search" placeholder="Buscar…" aria-label="Buscar">
+      <div class="ahead-actions"><input id="qa-filter" class="in" type="search" placeholder="Buscar por título…" aria-label="Buscar">
       <a class="btn primary" href="/admin/editor/new">{icon("plus", 16)} Nueva</a></div></header>
+    <p class="page-sub">Aquí están todas sus noticias. Con <b>Editar</b> las cambia; con <b>Eliminar</b> las borra (le pediremos confirmar).</p>
     <section class="panel"><table class="tbl"><thead><tr><th>Título</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
     <tbody id="qa-rows">{rows or '<tr><td colspan="4" class="muted">Sin noticias todavía.</td></tr>'}</tbody></table></section>'''
     return admin_shell(user, csrf, "Noticias", body, "posts")
@@ -194,15 +271,15 @@ def admin_editor(user, csrf, kind, item):
     meta_rows = ""
     if is_post:
         meta_rows = f'''
-      <label>Resumen (aparece en las tarjetas)
-        <textarea name="excerpt" rows="2" maxlength="400">{esc(item.get("excerpt", ""))}</textarea></label>
-      <label>Portada (URL o subir imagen)
+      <label>Resumen <span class="hint">(una o dos frases; aparece bajo el título en su página)</span>
+        <textarea name="excerpt" rows="2" maxlength="400" placeholder="Escriba aquí un resumen corto…">{esc(item.get("excerpt", ""))}</textarea></label>
+      <label>Foto principal <span class="hint">(suba una foto o pegue su enlace)</span>
         <div class="cover-row"><input name="cover" type="text" value="{esc(item.get("cover", ""))}" placeholder="https://… o sube una imagen">
         <label class="btn ghost upl">{icon("upload", 15)} Subir<input type="file" data-upload hidden accept="image/*"></div></label>
         <div class="cover-preview">{'<img src="' + esc(item.get("cover", "")) + '" alt="">' if item.get("cover") else ''}</div>
       <label>Categoría
         <select name="category">{cat_opts}</select></label>
-      <label>Autor
+      <label>¿Quién lo escribe? <span class="hint">(su nombre o el del programa)</span>
         <input name="author" type="text" value="{esc(item.get("author", "Redacción El Mañanero"))}" placeholder="Redacción El Mañanero"></label>
       <label>Etiquetas (separadas por coma)
         <input name="tags" type="text" value="{esc(', '.join(item.get("tags", [])))}" placeholder="LIDOM, Béisbol, Selección"></label>
@@ -225,7 +302,7 @@ def admin_editor(user, csrf, kind, item):
         <input class="title-in" name="title" type="text" placeholder="Título de la {'nota' if is_post else 'página'}"
                value="{esc(title)}" required maxlength="200">
         <div class="meta-grid">
-          <label>Enlace (se genera solo, puedes editarlo)<input name="slug" type="text" value="{esc(item.get('slug', ''))}" placeholder="se-genera-del-titulo"></label>
+          <label>Enlace web <span class="hint">(se llena solo — no necesita tocarlo)</span><input name="slug" type="text" value="{esc(item.get('slug', ''))}" placeholder="se-genera-del-titulo"></label>
           {meta_rows}
           <label>Estado
             <select name="status">
@@ -238,13 +315,13 @@ def admin_editor(user, csrf, kind, item):
         <div class="blk-head"><h2>Contenido</h2>
           <div class="add-bar">{"".join(f'<button type="button" class="mini" data-add="{t}">{icon(ic2, 15)} {lbl}</button>' for t, lbl, ic2 in BLOCK_TYPES)}</div>
         </div>
-        <p class="muted small">{icon("grip-vertical", 14)} Arrastra el asa de cada bloque para reordenar. Los cambios se guardan con el botón Guardar.</p>
+        <p class="panel-help">{icon("lightbulb", 16)} Para agregar un cuadro nuevo, pulse uno de los botones de arriba. Para cambiar el orden, tome el asa <b>MOVER</b> y arrastre. Al terminar, pulse <b>Guardar</b>.</p>
         <div class="blocks" data-blocks></div>
       </section>
     </div>
     <script>window.__ITEM = {json.dumps(item, ensure_ascii=False)}; window.__KIND = {kind!r};</script>'''
     return admin_shell(user, csrf, ("Editar " if item else "Nueva ") + ("noticia" if is_post else "página"), body,
-                       "posts" if is_post else "pages")
+                       "posts" if is_post else "pages", tour="editor")
 
 
 def admin_media(user, csrf, files):
@@ -286,7 +363,8 @@ def admin_inbox(user, csrf, data):
         </div></div>'''
         for m in msgs)
     body = f'''
-    <header class="ahead"><h1>Bandeja de entrada</h1><span class="badge pub">{len(msgs)} mensajes</span></header>
+    <header class="ahead"><h1>Mensajes</h1><span class="badge pub">{len(msgs)} en total</span></header>
+    <p class="page-sub">Todos los mensajes que la gente envía en la página de Contacto llegan aquí. Nada se pierde.</p>
     <section class="panel">{items or '<p class="muted">Sin mensajes por ahora. Los del formulario de contacto llegan aquí.</p>'}</section>'''
     return admin_shell(user, csrf, "Bandeja", body, "inbox")
 
@@ -297,6 +375,7 @@ def admin_settings(user, csrf, data, error=None):
     banner = f'<div class="alert err">{icon("x", 18)}<span>{esc(error)}</span></div>' if error else ""
     body = f'''
     <header class="ahead"><h1>Ajustes</h1></header>
+    <p class="page-sub">Cambie lo que quiera y pulse Guardar al final de cada sección.</p>
     {banner}
     <section class="panel">
       <h2>Inicio y marca</h2>

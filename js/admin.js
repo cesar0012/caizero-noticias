@@ -334,3 +334,94 @@
     }).finally(function () { saveBtn.disabled = false; });
   });
 })();
+
+/* =========================================================
+   GUIA PASO A PASO (onboarding) — corre en todas las paginas
+   ========================================================= */
+(function () {
+  'use strict';
+  var steps = window.__TOUR || [];
+  var fab = document.getElementById('helpBtn');
+  var ov = document.getElementById('tour');
+  if (!fab || !ov || !steps.length) return;
+
+  // Maquetas ilustrativas (CSS puro, sin imagenes)
+  var DEMOS = {
+    welcome: '<div class="d-panel"><div class="d-row-main"></div><div class="d-cards"><i></i><i></i><i></i></div><div class="d-lines"><i></i><i style="width:70%"></i></div></div>',
+    nueva: '<div class="d-center"><span class="d-btn d-btn-big">' + '+' + ' Nueva noticia</span><span class="d-arrow">' + '→' + '</span><span class="d-page">' + 'Se abre para escribir' + '</span></div>',
+    titulo: '<div class="d-title-field">Escriba aqui el titulo de la noticia</div>',
+    bloques: '<div class="d-chips"><i>+ Subtitulo</i><i class="on">+ Texto</i><i>+ Imagen</i><i>+ Video</i><i>+ Cita</i></div><div class="d-block"><span class="d-handle">' + '≡ MOVER' + '</span><span class="d-block-txt">Escriba aqui el texto del parrafo' + '…' + '</span></div>',
+    mover: '<div class="d-block"><span class="d-handle d-grab">' + '≡ MOVER' + '</span><span class="d-block-txt">Arrastre esta asa hacia arriba o abajo</span><span class="d-arrows-updown">' + '↑' + ' ' + '↓' + '</span></div>',
+    campos: '<div class="d-fields"><div><small>Categoria</small><span>Deportes ' + '▾' + '</span></div><div><small>Quien lo escribe</small><span>Redaccion El Mananero</span></div></div>',
+    guardar: '<div class="d-header"><span class="d-save-ok">Guardado</span><span class="d-btn">' + 'Guardar</span></div><p class="d-cap">El boton Guardar, arriba a la derecha</p>',
+    lista: '<div class="d-table"><div><i class="d-dot on"></i><b>Titulo de la noticia</b></div><div><i class="d-dot"></i><b>Otra noticia</b></div><div><i class="d-dot on"></i><b>Una mas</b></div></div><p class="d-cap">Verde = publicada · Gris = borrador</p>',
+    acciones: '<div class="d-actions"><span class="d-chip">' + 'Editar</span><span class="d-chip">' + 'Ver</span><span class="d-chip d-red">' + 'Eliminar</span></div><p class="d-cap">Eliminar siempre pide confirmacion</p>',
+    bandeja: '<div class="d-msg"><b>Maria P.</b> <small>maria@correo.com</small><p>Hola, quiero compartir una noticia de mi barrio' + '…' + '</p></div>',
+    ayuda: '<div class="d-center"><span class="d-fab">?</span><span class="d-cap">Este boton abre la guia</span></div>',
+    media: '<div class="d-drop">' + '↓' + ' Arrastre archivos aqui</div>',
+    copy: '<div class="d-center"><span class="d-chip">' + 'Copiar enlace</span><span class="d-arrow">' + '→' + '</span><span class="d-chip on">' + 'Pegar en la noticia' + '</span></div>',
+    pass: '<div class="d-fields"><div><small>Contrasena actual</small><span>' + '••••••••' + '</span></div><div><small>Nueva contrasena</small><span>' + '••••••••' + '</span></div></div><p class="d-cap">10 o mas caracteres, con letras y numeros</p>'
+  };
+
+  var i = 0;
+  var elNum = ov.querySelector('[data-tour-num]');
+  var elTitle = ov.querySelector('[data-tour-title]');
+  var elText = ov.querySelector('[data-tour-text]');
+  var elDemo = ov.querySelector('[data-tour-demo]');
+  var elDots = ov.querySelector('[data-tour-dots]');
+  var btnPrev = ov.querySelector('[data-tour-prev]');
+  var btnNext = ov.querySelector('[data-tour-next]');
+
+  function render() {
+    var s = steps[i];
+    elNum.textContent = 'Paso ' + (i + 1) + ' de ' + steps.length;
+    elTitle.textContent = s.t;
+    elText.textContent = s.d;
+    if (s.demo && DEMOS[s.demo]) {
+      elDemo.innerHTML = DEMOS[s.demo];
+      elDemo.hidden = false;
+    } else {
+      elDemo.hidden = true;
+    }
+    elDots.innerHTML = '';
+    for (var k = 0; k < steps.length; k++) {
+      var dot = document.createElement('i');
+      if (k === i) dot.className = 'on';
+      elDots.appendChild(dot);
+    }
+    btnPrev.disabled = i === 0;
+    btnNext.innerHTML = (i === steps.length - 1 ? 'Entendido' : 'Siguiente') +
+      ' <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  }
+
+  function open() {
+    i = 0;
+    render();
+    ov.hidden = false;
+    fab.classList.add('seen');
+    try { localStorage.setItem('mnr_tour', '1'); } catch (e) {}
+  }
+  function close() { ov.hidden = true; }
+
+  fab.addEventListener('click', open);
+  ov.querySelectorAll('[data-tour-close]').forEach(function (el) {
+    el.addEventListener('click', close);
+  });
+  btnNext.addEventListener('click', function () {
+    if (i === steps.length - 1) close(); else { i++; render(); }
+  });
+  btnPrev.addEventListener('click', function () {
+    if (i > 0) { i--; render(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (ov.hidden) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') btnNext.click();
+    if (e.key === 'ArrowLeft' && !btnPrev.disabled) btnPrev.click();
+  });
+
+  // pulso hasta que la abra la primera vez
+  var seen = false;
+  try { seen = !!localStorage.getItem('mnr_tour'); } catch (e) {}
+  if (!seen) fab.classList.add('pulse');
+})();
