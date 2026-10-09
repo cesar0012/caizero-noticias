@@ -1,0 +1,5 @@
+# datos dinámicos del CMS (no versionar: viven en el volumen del servidor)
+data/
+uploads/
+__pycache__/
+*.pyc

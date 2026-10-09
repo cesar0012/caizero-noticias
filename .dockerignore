@@ -1,0 +1,6 @@
+.git
+data/
+uploads/
+__pycache__/
+*.pyc
+files/
