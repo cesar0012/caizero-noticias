@@ -344,11 +344,16 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
 
     def _sec_headers(self):
-        return [
+        headers = [
             ("X-Content-Type-Options", "nosniff"),
             ("X-Frame-Options", "SAMEORIGIN"),
             ("Referrer-Policy", "strict-origin-when-cross-origin"),
         ]
+        if os.environ.get("DEMO") == "1":
+            # preview/demo: fuera de índice y sin caché (LINEAMIENTOS 3.2/5)
+            headers.append(("X-Robots-Tag", "noindex, nofollow"))
+            headers.append(("Cache-Control", "no-store"))
+        return headers
 
     def read_body(self) -> bytes:
         length = int(self.headers.get("Content-Length") or 0)

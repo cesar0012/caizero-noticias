@@ -3,3 +3,5 @@ data/
 uploads/
 __pycache__/
 *.pyc
+tools/
+demo-url.txt

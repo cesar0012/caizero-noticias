@@ -73,6 +73,15 @@ aunque el correo no llegue, el cliente los ve en su panel.
   generados automáticamente.
 - URLs limpias sin extensión, 404 controlado, cache-busting `?v=n` en CSS/JS.
 
+## Demo para cliente (Cloudflare Tunnel)
+
+1. Doble clic en `demo-server.bat` (requiere `tools/cloudflared.exe`, que no
+   se versiona: cópialo desde otro proyecto).
+2. Comparte la URL `https://*.trycloudflare.com` que imprime (queda también
+   en `demo-url.txt`).
+3. El sitio demo arranca en modo **noindex** (`X-Robots-Tag`) para que Google
+   no indexe la previsualización.
+
 ## Desarrollo local
 
 ```
