@@ -71,7 +71,8 @@ DEFAULT_SETTINGS = {
     "heroSubtitle": "Noticias, opinión y video del deporte dominicano y del mundo. Directo, sin rodeos y con la pasión que el juego merece.",
     "heroImage": "",
     "contactEmail": CONTACT_EMAIL,
-    "social": {"facebook": "", "x": "", "instagram": "", "youtube": ""},
+    "social": {"facebook": "https://www.facebook.com/elsolmananero", "x": "",
+              "instagram": "https://www.instagram.com/elsolmananero", "youtube": ""},
 }
 
 
@@ -102,7 +103,7 @@ def first_run_store():
                 "excerpt": "Arrancamos con todo: noticias, opinión y video del deporte dominicano y del mundo, todas las mañanas.",
                 "cover": "", "category": "Noticias", "author": "Redacción El Mañanero", "tags": ["El Mañanero"], "status": "published",
                 "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-                "featured": True,
+                "featured": False,
                 "blocks": [
                     {"t": "p", "text": "Arranca El Mañanero Deportes: el espacio donde el deporte dominicano se analiza sin filtros, con datos, opinión y la pasión que el juego merece."},
                     {"t": "h", "text": "¿Qué vas a encontrar aquí?"},
@@ -173,6 +174,11 @@ def store():
                 _store.setdefault("users", [])
             else:
                 _store = first_run_store()
+                try:
+                    import seed
+                    seed.enrich(_store)
+                except Exception as e:
+                    print("[seed] contenido demo no disponible:", e)
                 save_store(_store)
         return _store
 
