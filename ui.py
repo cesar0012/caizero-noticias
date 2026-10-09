@@ -151,7 +151,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
 <header class="masthead">
   <div class="wrap masthead-in">
     <a class="brand" href="/" aria-label="{BRAND} — Inicio">
-      <img src="/img/logo-h.png" alt="{BRAND}" width="224" height="53">
+      <img src="/img/logo-h.png?v=2" alt="{BRAND}" width="218" height="53">
     </a>
     <p class="mast-tagline">{esc(settings.get("tagline", ""))}</p>
   </div>
@@ -185,7 +185,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
 <footer class="footer">
   <div class="wrap footer-grid">
     <div class="footer-brand">
-      <a href="/"><img src="/img/logo-h.png" alt="{BRAND}" width="182" height="43"></a>
+      <a href="/"><img src="/img/logo-h.png?v=2" alt="{BRAND}" width="177" height="43"></a>
       <p>{esc(settings.get("tagline", ""))}</p>
       <p class="footer-loc">Hecho en Oregón para la comunidad hispana.</p>
     </div>
