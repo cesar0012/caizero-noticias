@@ -301,6 +301,8 @@ def enrich(store):
             social[k] = v
     if not s.get("tagline"):
         s["tagline"] = DEMO_TAGLINE
+    if not s.get("contactEmail"):
+        s["contactEmail"] = "hola@elsolmananero.com"
     return added
 
 

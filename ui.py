@@ -15,7 +15,7 @@ E = html.escape
 
 BRAND = "El Mañanero Deportes"
 CATS = ["Noticias", "Deportes", "Salud y Belleza", "Personalidades Locales", "Comunidad", "Eventos"]
-ASSET_V = "6"
+ASSET_V = "7"
 
 MES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
              "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -151,7 +151,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
 <header class="masthead">
   <div class="wrap masthead-in">
     <a class="brand" href="/" aria-label="{BRAND} — Inicio">
-      <img src="/img/logo-h.png" alt="{BRAND}" width="238" height="53">
+      <img src="/img/logo-h.png" alt="{BRAND}" width="224" height="53">
     </a>
     <p class="mast-tagline">{esc(settings.get("tagline", ""))}</p>
   </div>
@@ -185,7 +185,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
 <footer class="footer">
   <div class="wrap footer-grid">
     <div class="footer-brand">
-      <a href="/"><img src="/img/logo-h.png" alt="{BRAND}" width="196" height="43"></a>
+      <a href="/"><img src="/img/logo-h.png" alt="{BRAND}" width="182" height="43"></a>
       <p>{esc(settings.get("tagline", ""))}</p>
       <p class="footer-loc">Hecho en Oregón para la comunidad hispana.</p>
     </div>
@@ -528,32 +528,54 @@ def contacto(base, settings, ok=False):
              '<div><b>¡Mensaje enviado!</b><p>Gracias por escribirnos. Te respondemos muy pronto.</p></div></div>'
              if ok else "")
     email = settings.get("contactEmail") or ""
-    body = f'''<section class="section"><div class="wrap contact-grid">
-    <div class="contact-intro">
-      <h1 class="page-title">Contacto</h1>
-      <p class="lead">¿Tienes una historia, una pregunta o quieres colaborar con El Mañanero?
-      Escríbenos y te leemos en el próximo programa.</p>
-      <dl class="contact-data">
-        <div><dt>Correo</dt><dd>{('<a href="mailto:' + esc(email) + '">' + esc(email) + '</a>') if email else 'Vía redes sociales'}</dd></div>
-        <div><dt>Cobertura</dt><dd>Área metropolitana de Portland · Oregón</dd></div>
-        <div><dt>Horario</dt><dd>Lunes a domingo, desde las 6:00 AM</dd></div>
-      </dl>
-      <div class="contact-social">
-        <h4>Síguenos</h4>
-        {social_links(settings)}
+    correo_html = (('<a href="mailto:' + esc(email) + '">' + esc(email) + '</a>')
+                   if email else "A través de nuestras redes sociales")
+    body = f'''
+<section class="contact-hero">
+  <div class="wrap">
+    <h1 class="contact-title">Contacto</h1>
+    <p class="contact-lead">¿Tienes una historia, una pregunta o quieres colaborar con El Mañanero?
+    Escríbenos y te leemos en el próximo programa.</p>
+  </div>
+</section>
+<section class="section contact-main">
+  <div class="wrap contact-grid">
+    <aside class="contact-aside" aria-label="Datos de contacto">
+      <div class="c-card">
+        <h4>Correo</h4>
+        <p class="c-big">{correo_html}</p>
       </div>
-    </div>
+      <div class="c-card">
+        <h4>Síguenos</h4>
+        <div class="contact-social">{social_links(settings)}</div>
+      </div>
+      <div class="c-card">
+        <h4>Cobertura</h4>
+        <p>Área metropolitana de Portland · Oregón</p>
+      </div>
+      <div class="c-card">
+        <h4>Horario</h4>
+        <p>Lunes a domingo, desde las 6:00 AM</p>
+      </div>
+    </aside>
     <div class="contact-form-col">
       {okmsg}
-      <form class="form" method="post" action="/contacto">
-        <label for="cf-name">Nombre<input id="cf-name" name="name" type="text" required maxlength="120" autocomplete="name"></label>
-        <label for="cf-email">Correo electrónico<input id="cf-email" name="email" type="email" required maxlength="160" autocomplete="email"></label>
-        <label for="cf-msg">Mensaje<textarea id="cf-msg" name="message" rows="6" required maxlength="4000"></textarea></label>
+      <form class="form-card" method="post" action="/contacto">
+        <h2 class="form-title">Escríbenos</h2>
+        <div class="form-row">
+          <label for="cf-name">Nombre<input id="cf-name" name="name" type="text" required maxlength="120" autocomplete="name" placeholder="Tu nombre"></label>
+          <label for="cf-email">Correo electrónico<input id="cf-email" name="email" type="email" required maxlength="160" autocomplete="email" placeholder="tu@correo.com"></label>
+        </div>
+        <label for="cf-msg">Mensaje<textarea id="cf-msg" name="message" rows="7" required maxlength="4000" placeholder="Cuéntanos tu historia o tu pregunta…"></textarea></label>
         <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
-        <button class="btn-submit" type="submit">Enviar mensaje</button>
+        <div class="form-foot">
+          <p class="form-note">Respondemos en un máximo de 48 horas.</p>
+          <button class="btn-submit" type="submit">Enviar mensaje</button>
+        </div>
       </form>
     </div>
-  </div></section>'''
+  </div>
+</section>'''
     return shell(base, settings, "Contacto — " + BRAND, "Contacta al equipo de El Mañanero Deportes.",
                  base + "/contacto", body, active="contacto")
 
