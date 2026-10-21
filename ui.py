@@ -13,9 +13,9 @@ from datetime import datetime
 
 E = html.escape
 
-BRAND = "El Mañanero Deportes"
+BRAND = "El Mañanero"
 CATS = ["Noticias", "Deportes", "Salud y Belleza", "Personalidades Locales", "Comunidad", "Eventos"]
-ASSET_V = "7"
+ASSET_V = "8"
 
 MES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
              "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -106,6 +106,24 @@ def fecha_hoy():
     return f"{DIA_LARGO[n.weekday()]}, {n.day} de {MES_LARGO[n.month-1]} de {n.year}"
 
 
+def ad_slot(settings, n, extra_cls=""):
+    """Espacio publicitario configurable: imagen o video, con enlace opcional."""
+    media = (settings.get("ad%dMedia" % n) or "").strip()
+    link = (settings.get("ad%dLink" % n) or "").strip()
+    if not media:
+        return ""
+    ext = media.lower().rsplit(".", 1)[-1]
+    if ext in {"mp4", "webm", "mov", "m4v"}:
+        inner = (f'<video src="{esc(media)}" autoplay muted loop playsinline '
+                 f'aria-label="Publicidad"></video>')
+    else:
+        inner = f'<img src="{esc(media)}" alt="Publicidad" loading="lazy">'
+    if link:
+        return (f'<a class="ad-slot {extra_cls}" href="{esc(link)}" target="_blank" '
+                f'rel="noopener nofollow" aria-label="Espacio publicitario">{inner}</a>')
+    return f'<div class="ad-slot {extra_cls}">{inner}</div>'
+
+
 def social_links(settings, with_icons=True, size=18):
     social = settings.get("social", {}) if isinstance(settings.get("social"), dict) else {}
     out = []
@@ -129,9 +147,9 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
         pages = published_pages()
     except Exception:
         pass
-    nav = [("Inicio", "/", ""), ("Noticias", "/noticias", "noticias"),
-           ("Videos", "/videos", "videos"), ("Nosotros", "/nosotros", "nosotros"),
-           ("Contacto", "/contacto", "contacto")]
+    nav = [("Inicio", "/", ""), ("Mañanero Deportes", "/categoria/deportes", "deportes"),
+           ("Noticias", "/noticias", "noticias"), ("Videos", "/videos", "videos"),
+           ("Nosotros", "/nosotros", "nosotros"), ("Contacto", "/contacto", "contacto")]
     nav_html = "".join(
         f'<a href="{u}" class="nav-link{" active" if key == active else ""}">{t}</a>'
         for t, u, key in nav)
@@ -191,9 +209,9 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
 <header class="masthead">
   <div class="wrap masthead-in">
     <a class="brand" href="/" aria-label="{BRAND} — Inicio">
-      <img src="/img/logo-h.png?v=2" alt="{BRAND}" width="218" height="53">
+      <img src="/img/logo-h.png?v=3" alt="{BRAND}" width="304" height="46">
     </a>
-    <p class="mast-tagline">{esc(settings.get("tagline", ""))}</p>
+    {ad_slot(settings, 1, "ad-head")}
   </div>
   <nav class="mainnav" aria-label="Principal">
     <div class="wrap mainnav-in">
@@ -225,7 +243,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
 <footer class="footer">
   <div class="wrap footer-grid">
     <div class="footer-brand">
-      <a href="/"><img src="/img/logo-h.png?v=2" alt="{BRAND}" width="177" height="43"></a>
+      <a href="/"><img src="/img/logo-h.png?v=3" alt="{BRAND}" width="177" height="43"></a>
       <p>{esc(settings.get("tagline", ""))}</p>
       <p class="footer-loc">Hecho en Oregón para la comunidad hispana.</p>
     </div>
@@ -432,9 +450,9 @@ def home(base, settings, posts):
         if by_cat.get("Salud y Belleza") or by_cat.get("Comunidad") else ""
     row2 = (f'<div class="wrap duo">{band_cat("Personalidades Locales")}{band_cat("Eventos")}</div>') \
         if by_cat.get("Personalidades Locales") or by_cat.get("Eventos") else ""
-    sports_band = f'''<section class="band band-navy" aria-label="Deportes">
+    sports_band = f'''<section class="band band-navy" aria-label="Mañanero Deportes">
     <div class="wrap">
-      {sec_head("Deportes", "/categoria/deportes")}
+      {sec_head("Mañanero Deportes", "/categoria/deportes")}
       <div class="sport-grid">{sports_html}</div>
     </div>
   </section>''' if sports_html else ""
@@ -451,6 +469,7 @@ def home(base, settings, posts):
   <aside class="hero-rail" aria-label="Últimas noticias">
     <h2 class="rail-title">Últimas noticias</h2>
     <ol class="rail-list">{rail_items}</ol>
+    {f'<div class="rail-ad"><span class="ad-label">Publicidad</span>{ad_slot(settings, 2, "ad-rail")}</div>' if ad_slot(settings, 2) else ''}
   </aside>
 </section>
 
@@ -488,8 +507,13 @@ def noticias(base, posts, page=1, cat=None, cat_slug=None):
                     for n in range(1, total + 1))
     chips = "".join(f'<a class="cat-chip{" on" if c == cat else ""}" href="/categoria/{catslug(c)}">{c}</a>'
                     for c in CATS)
-    title = f"{cat} — Noticias" if cat else "Noticias"
-    desc = "Todas las noticias y análisis de El Mañanero Deportes" + (f" en la categoría {cat}." if cat else ".")
+    if cat == "Deportes":
+        title = "Mañanero Deportes"
+    elif cat:
+        title = f"{cat} — Noticias"
+    else:
+        title = "Noticias"
+    desc = "Todas las noticias y análisis de El Mañanero" + (f" en la categoría {cat}." if cat else ".")
     canon = base + ("/noticias" if not cat else "/categoria/" + (cat_slug or catslug(cat)))
     body = f'''<section class="section"><div class="wrap">
     {sec_head(title)}
@@ -645,7 +669,7 @@ def rss(base, posts):
         f"<guid>{base}/noticias/{esc(p['slug'])}</guid></item>"
         for p in posts[:20])
     return (f'<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel>'
-            f'<title>{BRAND}</title><link>{base}</link><description>Deportes sin filtro</description>{items}</channel></rss>')
+            f'<title>{BRAND}</title><link>{base}</link><description>Noticias, deportes y comunidad</description>{items}</channel></rss>')
 
 
 def _s():

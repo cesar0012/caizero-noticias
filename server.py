@@ -65,7 +65,11 @@ def load_secret() -> bytes:
 SECRET = load_secret()
 
 DEFAULT_SETTINGS = {
-    "siteTitle": "El Mañanero Deportes",
+    "siteTitle": "El Mañanero",
+    "ad1Media": "/img/ad-header.png",
+    "ad1Link": "",
+    "ad2Media": "/img/ad-rail.png",
+    "ad2Link": "",
     "tagline": "El análisis deportivo que despierta contigo.",
     "heroTitle": "Deportes sin filtro, todas las mañanas",
     "heroSubtitle": "Noticias, opinión y video del deporte dominicano y del mundo. Directo, sin rodeos y con la pasión que el juego merece.",
@@ -98,7 +102,7 @@ def first_run_store():
         "posts": [
             {
                 "id": uuid.uuid4().hex[:10], "kind": "post",
-                "title": "Bienvenidos a El Mañanero Deportes",
+                "title": "Bienvenidos a El Mañanero",
                 "slug": "bienvenidos-a-el-mananero-deportes",
                 "excerpt": "Arrancamos con todo: noticias, opinión y video del deporte dominicano y del mundo, todas las mañanas.",
                 "cover": "", "category": "Noticias", "author": "Redacción El Mañanero", "tags": ["El Mañanero"], "status": "published",
@@ -607,6 +611,10 @@ class Handler(SimpleHTTPRequestHandler):
                 s = d["settings"]
                 for k in ("siteTitle", "tagline", "heroTitle", "heroSubtitle", "contactEmail"):
                     s[k] = (form.get(k) or "").strip()[:400]
+                for k in ("ad1Media", "ad2Media"):
+                    s[k] = (form.get(k) or "").strip()[:300]
+                for k in ("ad1Link", "ad2Link"):
+                    s[k] = (form.get(k) or "").strip()[:300]
                 for k in ("facebook", "x", "instagram", "youtube"):
                     s["social"][k] = (form.get("social_" + k) or "").strip()[:200]
                 if form.get("heroImage"):
@@ -783,7 +791,7 @@ def relay_contact(msg: dict):
             payload = json.dumps({
                 "name": msg["name"], "email": msg["email"],
                 "message": msg["message"][:2000],
-                "_subject": "Contacto web — El Mañanero Deportes",
+                "_subject": "Contacto web — El Mañanero",
                 "_template": "table", "_captcha": "false",
             }).encode()
             req = urllib.request.Request(
@@ -798,7 +806,7 @@ def relay_contact(msg: dict):
 # ----------------------------------------------------------------------------
 def main():
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
-    print(f"El Mañanero Deportes — sirviendo en http://0.0.0.0:{PORT}")
+    print(f"El Mañanero — sirviendo en http://0.0.0.0:{PORT}")
     print(f"Admin: http://0.0.0.0:{PORT}/admin  (usuario: admin)")
     try:
         server.serve_forever()

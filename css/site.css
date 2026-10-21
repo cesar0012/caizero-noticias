@@ -50,11 +50,21 @@ h1,h2,h3,h4{line-height:1.15;margin:0}
 
 /* ---------- Masthead ---------- */
 .masthead{background:var(--paper);border-bottom:1px solid var(--line)}
-.masthead-in{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding-top:18px;padding-bottom:18px}
-.brand{display:inline-flex;align-items:center}
-.brand img{height:56px;width:auto}
-.mast-tagline{margin:0;color:var(--muted);font-size:.95rem;text-align:right;max-width:340px}
-@media (max-width:720px){.mast-tagline{display:none}.brand img{height:46px}}
+.masthead-in{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding-top:16px;padding-bottom:16px;min-height:88px}
+.brand{display:inline-flex;align-items:center;flex:none}
+.brand img{height:48px;width:auto}
+.head-ad{margin-left:auto;flex:0 1 560px;min-width:0}
+.ad-slot{display:block;line-height:0;background:#fff}
+.ad-slot img,.ad-slot video{width:100%;height:auto;max-height:86px;object-fit:contain;border:1px solid var(--line)}
+.rail-ad{margin-top:16px}
+.ad-label{display:block;font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+.rail-ad .ad-slot img,.rail-ad .ad-slot video{max-height:none;object-fit:cover}
+@media (max-width:860px){
+  .masthead-in{flex-wrap:wrap;row-gap:10px}
+  .head-ad{flex:1 1 100%;order:3}
+  .ad-slot img,.ad-slot video{max-height:64px}
+  .brand img{height:42px}
+}
 
 /* ---------- Navegación principal (banda navy) ---------- */
 .mainnav{background:var(--navy);border-top:3px solid var(--gold)}

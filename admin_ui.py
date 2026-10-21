@@ -49,6 +49,7 @@ TOURS = {
     "settings": [
         {"t": "Su correo de contacto", "d": "Los mensajes del formulario llegarán a este correo. Nota: el primer mensaje pide una activación — abra su correo y pulse el enlace que le llega (solo se hace una vez).", "demo": "campos"},
         {"t": "Sus redes sociales", "d": "Pegue los enlaces de Facebook o Instagram para que aparezcan en su página, arriba y en el pie.", "demo": "campos"},
+        {"t": "Sus anuncios", "d": "En «Espacios publicitarios» puede poner un banner o video junto al logo y otro debajo de «Últimas noticias». Suba el archivo en Multimedia y pegue su enlace.", "demo": "campos"},
         {"t": "Cambiar la contraseña", "d": "Más abajo puede poner una contraseña fácil de recordar: 10 o más caracteres, con letras y números.", "demo": "pass"},
     ],
 }
@@ -83,7 +84,7 @@ def admin_shell(user, csrf, title, body, active="", tour=None):
 <body class="admin">
 <div class="admin-shell">
   <aside class="aside">
-    <a class="abrand" href="/admin"><img src="/img/mark.png" alt="" width="34" height="34"><span><b>El Mañanero</b><i>Deportes</i></span></a>
+    <a class="abrand" href="/admin"><img src="/img/mark.png" alt="" width="34" height="34"><span><b>El Mañanero</b><i>Panel</i></span></a>
     <nav class="anav-list">{nav_html}</nav>
     <div class="aside-foot">
       <a href="/" target="_blank" rel="noopener noreferrer" class="anav">{icon("eye", 18)}<span>Ver sitio</span></a>
@@ -131,7 +132,7 @@ def admin_login(error=""):
 </head>
 <body class="admin login-page">
 <main class="login-card">
-  <div class="login-brand"><img src="/img/mark.png" alt="" width="72" height="72"><span><b>El Mañanero</b><i>Deportes</i></span></div>
+  <div class="login-brand"><img src="/img/mark.png" alt="" width="72" height="72"><span><b>El Mañanero</b><i>Panel</i></span></div>
   <h1>Panel de administración</h1>
   <p class="login-hint">Escriba su usuario y su contraseña para entrar.</p>
   {err}
@@ -386,6 +387,16 @@ def admin_settings(user, csrf, data, error=None):
         <label>Título grande del inicio<input name="heroTitle" type="text" value="{esc(s.get('heroTitle', ''))}"></label>
         <label>Subtítulo del inicio<textarea name="heroSubtitle" rows="2">{esc(s.get('heroSubtitle', ''))}</textarea></label>
         <label>Imagen de fondo del inicio (URL o subir en Multimedia)<input name="heroImage" type="text" value="{esc(s.get('heroImage', ''))}" placeholder="/uploads/…"></label>
+        <h2 class="mt">Espacios publicitarios</h2>
+        <p class="page-sub">Dos espacios para anuncios: el 1 va junto al logo y el 2 debajo de «Últimas noticias».
+        Suba la imagen o el video en Multimedia, pegue aquí su enlace y (si quiere) la página web del anunciante.
+        Si deja el campo vacío no se muestra nada.</p>
+        <div class="meta-grid">
+          <label>Espacio 1 — imagen o video (URL)<input name="ad1Media" type="text" value="{esc(s.get('ad1Media', ''))}" placeholder="/uploads/mi-banner.jpg o .mp4"></label>
+          <label>Espacio 1 — enlace al hacer clic (opcional)<input name="ad1Link" type="url" value="{esc(s.get('ad1Link', ''))}" placeholder="https://el-anunciante.com"></label>
+          <label>Espacio 2 — imagen o video (URL)<input name="ad2Media" type="text" value="{esc(s.get('ad2Media', ''))}" placeholder="/uploads/mi-banner2.jpg o .mp4"></label>
+          <label>Espacio 2 — enlace al hacer clic (opcional)<input name="ad2Link" type="url" value="{esc(s.get('ad2Link', ''))}" placeholder="https://el-anunciante.com"></label>
+        </div>
         <h2 class="mt">Correo de contacto</h2>
         <label>Los mensajes del formulario también se reenvían a este correo<input name="contactEmail" type="email" value="{esc(s.get('contactEmail', ''))}" placeholder="contacto@tudominio.com"></label>
         <h2 class="mt">Redes sociales</h2>

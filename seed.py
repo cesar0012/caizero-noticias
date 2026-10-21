@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Contenido de demostración para El Mañanero Deportes.
+"""Contenido de demostración para El Mañanero.
 
 - `enrich(store)`: agrega noticias/videos de ejemplo y redes sociales si el
   store está vacío (lo usa el primer arranque y se puede correr a mano:
@@ -268,7 +268,7 @@ def content():
         "inNav": True,
         "navOrder": 40,
         "blocks": [
-            {"t": "p", "text": "El Mañanero Deportes es el espacio donde la comunidad latina de Oregón "
+            {"t": "p", "text": "El Mañanero es el espacio donde la comunidad latina de Oregón "
                                "empieza el día: análisis deportivo, noticias de la comunidad y la mejor "
                                "música para arrancar la mañana."},
             {"t": "h", "text": "Nuestra misión"},
@@ -303,6 +303,10 @@ def enrich(store):
         s["tagline"] = DEMO_TAGLINE
     if not s.get("contactEmail"):
         s["contactEmail"] = "hola@elsolmananero.com"
+    if not s.get("ad1Media"):
+        s["ad1Media"] = "/img/ad-header.png"
+    if not s.get("ad2Media"):
+        s["ad2Media"] = "/img/ad-rail.png"
     return added
 
 
