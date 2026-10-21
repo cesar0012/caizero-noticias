@@ -15,7 +15,7 @@ E = html.escape
 
 BRAND = "El Mañanero con Caizero"
 CATS = ["Noticias", "Deportes", "Salud y Belleza", "Personalidades Locales", "Comunidad", "Eventos"]
-ASSET_V = "9"
+ASSET_V = "10"
 
 MES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
              "agosto", "septiembre", "octubre", "noviembre", "diciembre"]

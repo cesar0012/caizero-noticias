@@ -109,19 +109,30 @@ h1,h2,h3,h4{line-height:1.15;margin:0}
 /* ---------- Menú móvil (drawer) ---------- */
 .drawer{position:fixed;inset:0;z-index:60}
 .drawer[hidden]{display:none}
-.drawer-scrim{position:absolute;inset:0;background:rgba(10,18,26,.55)}
+.drawer-scrim{position:absolute;inset:0;background:rgba(10,18,26,.55);opacity:0;transition:opacity .3s ease}
 .drawer-panel{
   position:absolute;top:0;right:0;bottom:0;width:min(320px,88vw);background:#fff;
   display:flex;flex-direction:column;padding:1rem;overflow-y:auto;box-shadow:var(--shadow);
+  transform:translateX(105%);transition:transform .34s cubic-bezier(.22,.9,.32,1);
 }
+.drawer.open .drawer-scrim{opacity:1}
+.drawer.open .drawer-panel{transform:translateX(0)}
 .drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
 .drawer-head b{font-size:1.05rem;letter-spacing:.08em;text-transform:uppercase}
 .icon-btn{background:none;border:0;cursor:pointer;color:var(--ink);padding:.4rem;border-radius:6px}
 .icon-btn:hover{background:var(--bg)}
 .drawer-link{
   display:block;padding:.8rem .6rem;border-bottom:1px solid var(--line);text-decoration:none;
-  font-weight:600;letter-spacing:.04em;
+  font-weight:600;letter-spacing:.04em;opacity:0;transform:translateX(24px);
+  transition:opacity .3s ease,transform .3s ease, color .15s;
 }
+.drawer.open .drawer-link{opacity:1;transform:none}
+.drawer.open .drawer-link:nth-child(2){transition-delay:.04s}
+.drawer.open .drawer-link:nth-child(3){transition-delay:.08s}
+.drawer.open .drawer-link:nth-child(4){transition-delay:.12s}
+.drawer.open .drawer-link:nth-child(5){transition-delay:.16s}
+.drawer.open .drawer-link:nth-child(6){transition-delay:.2s}
+.drawer.open .drawer-link:nth-child(7){transition-delay:.24s}
 .drawer-link.on,.drawer-link:hover{color:var(--blue-dark)}
 .drawer-social{margin-top:auto;display:flex;gap:.4rem;padding-top:1.25rem}
 .drawer-social a{
@@ -413,6 +424,7 @@ h1,h2,h3,h4{line-height:1.15;margin:0}
   .form-row{grid-template-columns:1fr}
 }
 @media (max-width:760px){
+  .ticker-track{animation-duration:22s}
   .sec-head{justify-content:space-between;gap:.6rem}
   .sec-rule{display:none}
   .sec-title{font-size:1.02rem;white-space:normal}
