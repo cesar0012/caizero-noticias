@@ -65,10 +65,10 @@ def load_secret() -> bytes:
 SECRET = load_secret()
 
 DEFAULT_SETTINGS = {
-    "siteTitle": "El Mañanero",
-    "ad1Media": "/img/ad-header.png",
+    "siteTitle": "El Mañanero con Caizero",
+    "ad1Media": "/img/pub-filler-top.png",
     "ad1Link": "",
-    "ad2Media": "/img/ad-rail.png",
+    "ad2Media": "/img/pub-filler-rail.png",
     "ad2Link": "",
     "tagline": "El análisis deportivo que despierta contigo.",
     "heroTitle": "Deportes sin filtro, todas las mañanas",

@@ -13,9 +13,9 @@ from datetime import datetime
 
 E = html.escape
 
-BRAND = "El Mañanero"
+BRAND = "El Mañanero con Caizero"
 CATS = ["Noticias", "Deportes", "Salud y Belleza", "Personalidades Locales", "Comunidad", "Eventos"]
-ASSET_V = "8"
+ASSET_V = "9"
 
 MES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
              "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -119,9 +119,9 @@ def ad_slot(settings, n, extra_cls=""):
     else:
         inner = f'<img src="{esc(media)}" alt="Publicidad" loading="lazy">'
     if link:
-        return (f'<a class="ad-slot {extra_cls}" href="{esc(link)}" target="_blank" '
+        return (f'<a class="pub-slot {extra_cls}" href="{esc(link)}" target="_blank" '
                 f'rel="noopener nofollow" aria-label="Espacio publicitario">{inner}</a>')
-    return f'<div class="ad-slot {extra_cls}">{inner}</div>'
+    return f'<div class="pub-slot {extra_cls}">{inner}</div>'
 
 
 def social_links(settings, with_icons=True, size=18):
@@ -209,9 +209,9 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
 <header class="masthead">
   <div class="wrap masthead-in">
     <a class="brand" href="/" aria-label="{BRAND} — Inicio">
-      <img src="/img/logo-h.png?v=3" alt="{BRAND}" width="304" height="46">
+      <img src="/img/logo-h.png?v=4" alt="{BRAND}" width="197" height="46">
     </a>
-    {ad_slot(settings, 1, "ad-head")}
+    {ad_slot(settings, 1, "pub-head")}
   </div>
   <nav class="mainnav" aria-label="Principal">
     <div class="wrap mainnav-in">
@@ -243,7 +243,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
 <footer class="footer">
   <div class="wrap footer-grid">
     <div class="footer-brand">
-      <a href="/"><img src="/img/logo-h.png?v=3" alt="{BRAND}" width="177" height="43"></a>
+      <a href="/"><img src="/img/logo-h.png?v=4" alt="{BRAND}" width="184" height="43"></a>
       <p>{esc(settings.get("tagline", ""))}</p>
       <p class="footer-loc">Hecho en Oregón para la comunidad hispana.</p>
     </div>
@@ -469,7 +469,7 @@ def home(base, settings, posts):
   <aside class="hero-rail" aria-label="Últimas noticias">
     <h2 class="rail-title">Últimas noticias</h2>
     <ol class="rail-list">{rail_items}</ol>
-    {f'<div class="rail-ad"><span class="ad-label">Publicidad</span>{ad_slot(settings, 2, "ad-rail")}</div>' if ad_slot(settings, 2) else ''}
+    {f'<div class="rail-pub"><span class="pub-label">Publicidad</span>{ad_slot(settings, 2, "pub-rail")}</div>' if ad_slot(settings, 2) else ''}
   </aside>
 </section>
 

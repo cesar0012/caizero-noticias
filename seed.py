@@ -304,9 +304,9 @@ def enrich(store):
     if not s.get("contactEmail"):
         s["contactEmail"] = "hola@elsolmananero.com"
     if not s.get("ad1Media"):
-        s["ad1Media"] = "/img/ad-header.png"
+        s["ad1Media"] = "/img/pub-filler-top.png"
     if not s.get("ad2Media"):
-        s["ad2Media"] = "/img/ad-rail.png"
+        s["ad2Media"] = "/img/pub-filler-rail.png"
     return added
 
 

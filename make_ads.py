@@ -97,8 +97,8 @@ def ad_header():
     mk = Image.open("img/mark.png").convert("RGBA").resize((110, 110), Image.LANCZOS)
     mk.putalpha(mk.split()[3].point(lambda a: int(a * 0.85)))
     img.alpha_composite(mk, (w - 150, h // 2 - 55))
-    img.convert("RGB").save("img/ad-header.png")
-    print("ad-header.png listo")
+    img.convert("RGB").save("img/pub-filler-top.png")
+    print("pub-filler-top.png listo")
 
 
 def ad_rail():
@@ -123,8 +123,8 @@ def ad_rail():
     f3 = fnt(30, bold=False)
     t4 = "Escríbanos: hola@elsolmananero.com"
     d.text((w // 2 - d.textlength(t4, font=f3) / 2, h - 80), t4, font=f3, fill=(159, 180, 198))
-    img.convert("RGB").save("img/ad-rail.png")
-    print("ad-rail.png listo")
+    img.convert("RGB").save("img/pub-filler-rail.png")
+    print("pub-filler-rail.png listo")
 
 
 ad_header()
