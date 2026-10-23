@@ -805,6 +805,15 @@ def relay_contact(msg: dict):
 
 # ----------------------------------------------------------------------------
 def main():
+    # ADMIN_PASSWORD manda: si la variable está definida y no coincide con la
+    # guardada, se sincroniza al arrancar (método de recuperación sin sesión).
+    pw_env = os.environ.get("ADMIN_PASSWORD", "").strip()
+    if pw_env:
+        admin = next((u for u in store()["users"] if u.get("username") == "admin"), None)
+        if admin and not check_password(pw_env, admin["hash"]):
+            admin["hash"] = hash_password(pw_env)
+            save_store(store())
+            print("[admin] contraseña sincronizada con la variable ADMIN_PASSWORD.")
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     print(f"El Mañanero — sirviendo en http://0.0.0.0:{PORT}")
     print(f"Admin: http://0.0.0.0:{PORT}/admin  (usuario: admin)")
