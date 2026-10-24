@@ -59,7 +59,7 @@ def load_secret() -> bytes:
     fd.write(key)
     fd.close()
     os.chmod(SECRET_PATH, 0o600)
-    return key
+    return key.encode()
 
 
 SECRET = load_secret()
@@ -221,7 +221,8 @@ def check_password(pw: str, stored: str) -> bool:
 
 
 def sign(payload: str) -> str:
-    return hmac.new(SECRET, payload.encode(), hashlib.sha256).hexdigest()[:32]
+    key = SECRET if isinstance(SECRET, bytes) else str(SECRET).encode()
+    return hmac.new(key, payload.encode(), hashlib.sha256).hexdigest()[:32]
 
 
 def make_session(username: str) -> str:
