@@ -29,7 +29,9 @@ def _dates_ago(n):
         today = ui.oregon_now().date()
     except Exception:
         today = date.today()
-    return (today - timedelta(days=n)).isoformat()
+    # El contenido demo siempre queda en el pasado lejano (+45 días de colchón)
+    # para que ninguna noticia real deje de aparecer primero.
+    return (today - timedelta(days=n + 45)).isoformat()
 
 
 def _post(slug, title, cat, cover, excerpt, author, days, blocks, featured=False, video=False):
