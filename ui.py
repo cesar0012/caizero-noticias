@@ -15,7 +15,7 @@ E = html.escape
 
 BRAND = "El Mañanero con Caizero"
 CATS = ["Noticias", "Deportes", "Salud y Belleza", "Personalidades Locales", "Comunidad", "Eventos"]
-ASSET_V = "11"
+ASSET_V = "12"
 
 MES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
              "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -184,8 +184,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
            ("Eventos", "/categoria/eventos", "eventos"),
            ("Comunidad", "/categoria/comunidad", "comunidad"),
            ("Personalidades Locales", "/categoria/personalidades-locales", "personalidades-locales"),
-           ("Salud y Belleza", "/categoria/salud-y-belleza", "salud-y-belleza"),
-           ("Contacto", "/contacto", "contacto")]
+           ("Salud y Belleza", "/categoria/salud-y-belleza", "salud-y-belleza")]
     nav_html = "".join(
         f'<a href="{u}" class="nav-link{" active" if key == active else ""}">{t}</a>'
         for t, u, key in nav)
@@ -238,6 +237,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
   <div class="wrap topbar-in">
     <span class="topbar-date">{fecha_hoy()}</span>
     <span class="topbar-loc">Oregón · Edición matutina</span>
+    <a class="topbar-contact" href="/contacto">{icon("mail", 14)}<span>Contacto</span></a>
     <nav class="topbar-social" aria-label="Redes sociales">{social_html_sm}</nav>
   </div>
 </div>
@@ -267,6 +267,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
     <div class="drawer-head"><b>Menú</b>
       <button class="icon-btn" data-close aria-label="Cerrar menú">{icon("x", 20)}</button></div>
     {"".join(f'<a href="{u}" class="drawer-link{" on" if key == active else ""}">{t}</a>' for t, u, key in nav)}
+    <a href="/contacto" class="drawer-link{" on" if active == "contacto" else ""}">Contacto</a>
     {nav_pages.replace('class="nav-link"', 'class="drawer-link"')}
     <div class="drawer-social">{social_html}</div>
   </nav>
