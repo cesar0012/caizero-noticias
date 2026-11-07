@@ -419,8 +419,16 @@ def home(base, settings, posts):
     published = [p for p in posts if p.get("status") == "published"]
     featured = next((p for p in published if p.get("featured")), published[0] if published else None)
     rest = [p for p in published if p is not featured]
-    latest = rest[:5]
-    grid = rest[5:11] or rest[:6]
+    # Últimas noticias: una por sección (la más reciente), en el orden del menú
+    rail_posts = []
+    for c in ["Deportes", "Noticias", "Eventos", "Comunidad", "Personalidades Locales", "Salud y Belleza"]:
+        cands = [p for p in rest if p.get("category") == c]
+        if cands:
+            rail_posts.append(max(cands, key=lambda p: p.get("date", "")))
+    latest = rail_posts
+    rail_ids = {id(p) for p in rail_posts}
+    remaining = [p for p in rest if id(p) not in rail_ids]
+    grid = remaining[:6]
     used = {id(p) for p in (latest + grid)}
     by_cat = {c: [p for p in rest if p.get("category") == c and id(p) not in used][:2] for c in CATS}
     videos = [p for p in published if p.get("kind") == "video" or
