@@ -418,10 +418,13 @@ def _ticker_from(posts, n=6):
 # ----------------------------------------------------------------------------
 def home(base, settings, posts):
     published = [p for p in posts if p.get("status") == "published"]
-    featured = next((p for p in published if p.get("featured")), published[0] if published else None)
+    orden = {id(p): i for i, p in enumerate(published)}  # desempate: la creada después gana
+    clasif = sorted(published, key=lambda p: (p.get("date", ""), orden[id(p)]), reverse=True)
+    # El hero es la noticia más reciente; "Destacada" solo gana si está entre las 3 más nuevas
+    feat = next((p for p in published if p.get("featured")), None)
+    featured = feat if feat is not None and id(feat) in {id(p) for p in clasif[:3]} else (clasif[0] if clasif else None)
     rest = [p for p in published if p is not featured]
     # Últimas noticias: una por sección (la más reciente), en el orden del menú
-    orden = {id(p): i for i, p in enumerate(published)}  # desempate: la creada después gana
     rail_posts = []
     for c in ["Deportes", "Noticias", "Eventos", "Comunidad", "Personalidades Locales", "Salud y Belleza"]:
         cands = [p for p in rest if p.get("category") == c]
@@ -520,7 +523,7 @@ def home(base, settings, posts):
   </aside>
 </section>
 
-{f'<section class="section"><div class="wrap">{sec_head("Últimas noticias", "/noticias")}<div class="grid-3">{grid_html}</div></div></section>' if grid_html else ''}
+{f'<section class="section"><div class="wrap">{sec_head("Más noticias", "/noticias")}<div class="grid-3">{grid_html}</div></div></section>' if grid_html else ''}
 {sports_band}
 {row1}
 {row2}

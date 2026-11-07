@@ -78,7 +78,7 @@ def content():
                 "by": "Director técnico de los Timbers"},
                {"t": "p", "text": "La próxima jornada será de visita. El Mañanero estará ahí con la previa, "
                                   "el minuto a minuto y la reacción del vestidor."}],
-              featured=True),
+              featured=False),
         _post("lidom-cartas-winter-ball",
               "LIDOM: las cartas del winter ball que verán acción esta semana",
               "Deportes", "deportes-alt",
@@ -92,7 +92,7 @@ def content():
                {"t": "p", "text": "Los juegos de la noche dominicana comienzan entre las 4:00 y las 6:00 PM "
                                   "hora de Oregón. El Mañanero publicará cada mañana la guía completa con "
                                   "los lanzadores probables."}],
-              featured=True),
+              featured=False),
         _post("dominicanos-ncaa-temporada",
               "Los dominicanos a seguir en la NCAA esta temporada",
               "Deportes", "deportes",
@@ -130,7 +130,7 @@ def content():
                                   "última década, con núcleos fuertes en Beaverton, Hillsboro y Gresham."},
                {"t": "q", "text": "Aquí encontramos trabajo, seguridad y espacio para crecer. No nos vamos.",
                 "by": "Vecina de Beaverton"}],
-              featured=True),
+              featured=False),
         _post("centro-comunitario-latino-beaverton",
               "Nuevo centro comunitario latino abre sus puertas en Beaverton",
               "Noticias", "noticia-alt",
@@ -179,7 +179,7 @@ def content():
                                   "entre los oyentes."},
                {"t": "q", "text": "La mañana no empieza hasta que el oyente se ríe. Ese es mi marcador.",
                 "by": "'El Profesor'"}],
-              featured=True),
+              featured=False),
         _post("entrenadora-hillsboro-beisbol-ninos",
               "La entrenadora de Hillsboro que lleva el béisbol a mil niños latinos",
               "Personalidades Locales", "personalidades-alt",
@@ -224,7 +224,7 @@ def content():
                {"t": "h", "text": "La agenda"},
                {"t": "p", "text": "Viernes de fútbol en Providence Park, sábado doble de la liga latina en "
                                   "Hillsboro y el derby universitario que cierra el mes."}],
-              featured=True),
+              featured=False),
         _post("festival-alegria-latina-portland",
               "El festival de la alegría latina regresa a Portland este fin de semana",
               "Eventos", "eventos-alt",
