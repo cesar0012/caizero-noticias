@@ -23,7 +23,13 @@ SOCIAL_DEFAULTS = {
 
 
 def _dates_ago(n):
-    return (date.today() - timedelta(days=n)).isoformat()
+    # Hora de Oregón (el contenedor vive en UTC y sembraba fechas de "mañana")
+    try:
+        import ui
+        today = ui.oregon_now().date()
+    except Exception:
+        today = date.today()
+    return (today - timedelta(days=n)).isoformat()
 
 
 def _post(slug, title, cat, cover, excerpt, author, days, blocks, featured=False, video=False):

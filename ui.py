@@ -421,11 +421,12 @@ def home(base, settings, posts):
     featured = next((p for p in published if p.get("featured")), published[0] if published else None)
     rest = [p for p in published if p is not featured]
     # Últimas noticias: una por sección (la más reciente), en el orden del menú
+    orden = {id(p): i for i, p in enumerate(published)}  # desempate: la creada después gana
     rail_posts = []
     for c in ["Deportes", "Noticias", "Eventos", "Comunidad", "Personalidades Locales", "Salud y Belleza"]:
         cands = [p for p in rest if p.get("category") == c]
         if cands:
-            rail_posts.append(max(cands, key=lambda p: p.get("date", "")))
+            rail_posts.append(max(cands, key=lambda p: (p.get("date", ""), orden[id(p)])))
     latest = rail_posts
     rail_ids = {id(p) for p in rail_posts}
     remaining = [p for p in rest if id(p) not in rail_ids]
