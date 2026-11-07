@@ -201,7 +201,7 @@
       add(vsrc);
       var vup = document.createElement('label');
       vup.className = 'mini upl';
-      vup.innerHTML = 'Subir video<input type="file" hidden accept="video/mp4,video/webm">';
+      vup.innerHTML = 'Subir video<input type="file" hidden accept="video/mp4,video/webm,video/quicktime">';
       add(vup);
       vup.querySelector('input').addEventListener('change', function () {
         if (!this.files[0]) return;

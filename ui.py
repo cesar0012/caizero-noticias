@@ -9,17 +9,44 @@ Iconografía mínima: solo redes sociales, reproductor y menú móvil.
 import html
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta, timezone, date
 
 E = html.escape
 
 BRAND = "El Mañanero con Caizero"
 CATS = ["Noticias", "Deportes", "Salud y Belleza", "Personalidades Locales", "Comunidad", "Eventos"]
-ASSET_V = "10"
+ASSET_V = "11"
 
 MES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
              "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 DIA_LARGO = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+
+
+# ----------------------------------------------------------------------------
+# Hora de Oregón (America/Los_Angeles) — el servidor vive en UTC y sin esto
+# la barra superior mostraba "mañana" desde las 5 PM de Oregón.
+# ----------------------------------------------------------------------------
+def _nth_sunday(year, month, n):
+    d = date(year, month, 1)
+    return d + timedelta(days=(6 - d.weekday()) % 7 + 7 * (n - 1))
+
+
+def oregon_now():
+    """Datetime (naive) en la hora local de Oregón, con horario de verano."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("America/Los_Angeles")).replace(tzinfo=None)
+    except Exception:
+        u = datetime.now(timezone.utc).replace(tzinfo=None)
+        y = u.year
+        dst_start = datetime.combine(_nth_sunday(y, 3, 2), datetime.min.time()) + timedelta(hours=10)
+        dst_end = datetime.combine(_nth_sunday(y, 11, 1), datetime.min.time()) + timedelta(hours=9)
+        off = timedelta(hours=-7) if dst_start <= u < dst_end else timedelta(hours=-8)
+        return u + off
+
+
+def oregon_today():
+    return oregon_now().strftime("%Y-%m-%d")
 
 
 # ----------------------------------------------------------------------------
@@ -42,6 +69,9 @@ def icon(name, size=18, cls=""):
         "user": '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
         "users": '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
         "mail": '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+        "phone": '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2z"/>',
+        "megaphone": '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+        "tiktok": '<path fill="currentColor" stroke="none" d="M16.6 1.5c.4 2.1 1.7 3.8 3.9 4.3v3.2c-1.5-.06-2.9-.5-4.1-1.2v6.6c0 3.7-2.6 6.1-5.9 6.1-3.1 0-5.7-2.3-5.7-5.5 0-3.4 3-5.9 6.4-5.4v3.3c-1.4-.4-3 .3-3.2 1.9-.2 1.3.9 2.5 2.2 2.5 1.4 0 2.4-1 2.4-2.5V1.5h4z"/>',
         "send": '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
         "settings": '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
         "layout-dashboard": '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
@@ -102,7 +132,7 @@ def fmt_date(iso):
 
 
 def fecha_hoy():
-    n = datetime.now()
+    n = oregon_now()
     return f"{DIA_LARGO[n.weekday()]}, {n.day} de {MES_LARGO[n.month-1]} de {n.year}"
 
 
@@ -127,7 +157,8 @@ def ad_slot(settings, n, extra_cls=""):
 def social_links(settings, with_icons=True, size=18):
     social = settings.get("social", {}) if isinstance(settings.get("social"), dict) else {}
     out = []
-    for n, key in [("Facebook", "facebook"), ("X", "x"), ("Instagram", "instagram"), ("YouTube", "youtube")]:
+    for n, key in [("Facebook", "facebook"), ("Instagram", "instagram"), ("TikTok", "tiktok"),
+                   ("YouTube", "youtube"), ("X", "x")]:
         u = (social.get(key) or "").strip()
         if u:
             ic = icon(key if key != "x" else "x-social", size) if with_icons else ""
@@ -147,9 +178,14 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
         pages = published_pages()
     except Exception:
         pass
-    nav = [("Inicio", "/", ""), ("Mañanero Deportes", "/categoria/deportes", "deportes"),
-           ("Noticias", "/noticias", "noticias"), ("Videos", "/videos", "videos"),
-           ("Nosotros", "/nosotros", "nosotros"), ("Contacto", "/contacto", "contacto")]
+    nav = [("Inicio", "/", ""),
+           ("Mañanero Deportes", "/categoria/deportes", "deportes"),
+           ("Noticias", "/noticias", "noticias"),
+           ("Eventos", "/categoria/eventos", "eventos"),
+           ("Comunidad", "/categoria/comunidad", "comunidad"),
+           ("Personalidades Locales", "/categoria/personalidades-locales", "personalidades-locales"),
+           ("Salud y Belleza", "/categoria/salud-y-belleza", "salud-y-belleza"),
+           ("Contacto", "/contacto", "contacto")]
     nav_html = "".join(
         f'<a href="{u}" class="nav-link{" active" if key == active else ""}">{t}</a>'
         for t, u, key in nav)
@@ -262,6 +298,7 @@ def shell(base, settings, title, desc, canonical, body, jsonld="", active="",
       <div class="footer-social">{social_html}</div>
       <h4 class="mt">Escríbenos</h4>
       <p class="footer-mail">{esc(settings.get("contactEmail") or "Vía redes sociales")}</p>
+      {f'<p class="footer-tel"><a href="tel:+1{esc("".join(ch for ch in settings.get("contactPhone", "") if ch.isdigit()))}">{esc(settings["contactPhone"])}</a></p>' if (settings.get("contactPhone") or "").strip() else ""}
     </div>
   </div>
   <div class="footer-bar">
@@ -609,6 +646,7 @@ def contacto(base, settings, ok=False):
         <h4>Correo</h4>
         <p class="c-big">{correo_html}</p>
       </div>
+      {f'<div class="c-card"><h4>Teléfono</h4><p class="c-big"><a href="tel:+1{esc("".join(ch for ch in settings.get("contactPhone", "") if ch.isdigit()))}">{esc(settings["contactPhone"])}</a></p></div>' if (settings.get("contactPhone") or "").strip() else ""}
       <div class="c-card">
         <h4>Síguenos</h4>
         <div class="contact-social">{social_links(settings)}</div>
@@ -678,4 +716,5 @@ def _s():
 
 # Vista del panel (definidas en admin_ui.py)
 from admin_ui import (admin_login, admin_home, admin_posts, admin_editor,
-                      admin_pages, admin_media, admin_inbox, admin_settings)  # noqa: E402
+                      admin_pages, admin_media, admin_inbox, admin_settings,
+                      admin_publicidad)  # noqa: E402

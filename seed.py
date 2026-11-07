@@ -14,9 +14,10 @@ from datetime import date, timedelta
 DEMO_TAGLINE = "Tu Guía Local: Noticias, Deportes y Comunidad en Oregón"
 
 SOCIAL_DEFAULTS = {
-    "facebook": "https://www.facebook.com/elsolmananero",
+    "facebook": "https://www.facebook.com/elsolcaizero",
     "x": "",
-    "instagram": "https://www.instagram.com/elsolmananero",
+    "instagram": "https://www.instagram.com/elsolmananeroconcaizero/",
+    "tiktok": "https://www.tiktok.com/foryou?lang=en",
     "youtube": "",
 }
 
@@ -302,7 +303,9 @@ def enrich(store):
     if not s.get("tagline"):
         s["tagline"] = DEMO_TAGLINE
     if not s.get("contactEmail"):
-        s["contactEmail"] = "hola@elsolmananero.com"
+        s["contactEmail"] = "Caizeronews@gmail.com"
+    if not s.get("contactPhone"):
+        s["contactPhone"] = "971-392-5439"
     if not s.get("ad1Media"):
         s["ad1Media"] = "/img/pub-filler-top.png"
     if not s.get("ad2Media"):

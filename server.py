@@ -42,7 +42,7 @@ SECRET_PATH = os.path.join(DATA_DIR, "secret.key")
 SESSION_TTL = 60 * 60 * 12          # 12 h
 CATEGORIES = ["Noticias", "Deportes", "Salud y Belleza", "Personalidades Locales", "Comunidad", "Eventos"]
 MAX_UPLOAD = 220 * 1024 * 1024      # 220 MB
-ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".webm", ".m4a", ".mp3"}
+ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".webm", ".mov", ".m4v", ".m4a", ".mp3"}
 
 _lock = threading.Lock()
 _login_fails = {}   # ip -> [fails, lock_until]
@@ -74,9 +74,11 @@ DEFAULT_SETTINGS = {
     "heroTitle": "Deportes sin filtro, todas las mañanas",
     "heroSubtitle": "Noticias, opinión y video del deporte dominicano y del mundo. Directo, sin rodeos y con la pasión que el juego merece.",
     "heroImage": "",
-    "contactEmail": CONTACT_EMAIL,
-    "social": {"facebook": "https://www.facebook.com/elsolmananero", "x": "",
-              "instagram": "https://www.instagram.com/elsolmananero", "youtube": ""},
+    "contactEmail": CONTACT_EMAIL or "Caizeronews@gmail.com",
+    "contactPhone": "971-392-5439",
+    "social": {"facebook": "https://www.facebook.com/elsolcaizero", "x": "",
+              "instagram": "https://www.instagram.com/elsolmananeroconcaizero/",
+              "tiktok": "https://www.tiktok.com/foryou?lang=en", "youtube": ""},
 }
 
 
@@ -106,7 +108,7 @@ def first_run_store():
                 "slug": "bienvenidos-a-el-mananero-deportes",
                 "excerpt": "Arrancamos con todo: noticias, opinión y video del deporte dominicano y del mundo, todas las mañanas.",
                 "cover": "", "category": "Noticias", "author": "Redacción El Mañanero", "tags": ["El Mañanero"], "status": "published",
-                "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                "date": ui.oregon_today(),
                 "featured": False,
                 "blocks": [
                     {"t": "p", "text": "Arranca El Mañanero Deportes: el espacio donde el deporte dominicano se analiza sin filtros, con datos, opinión y la pasión que el juego merece."},
@@ -121,7 +123,7 @@ def first_run_store():
                 "slug": "ejemplo-nota-deportiva",
                 "excerpt": "Ejemplo de nota para que veas la estructura: título, resumen, portada y bloques de contenido.",
                 "cover": "", "category": "Deportes", "author": "Redacción El Mañanero", "tags": ["Ejemplo"], "status": "draft",
-                "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                "date": ui.oregon_today(),
                 "featured": False,
                 "blocks": [
                     {"t": "p", "text": "Esta es una nota de ejemplo. Edítala o elimínala desde el panel: Noticias → Editar."},
@@ -169,7 +171,7 @@ def store():
                             item["slug"] = slugify(item["title"]) + "-" + item["id"][:4]
                         item.setdefault("blocks", [])
                         item.setdefault("status", "draft")
-                        item.setdefault("date", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+                        item.setdefault("date", ui.oregon_today())
                         item.setdefault("category", "Noticias")
                         item.setdefault("author", "Redacción El Mañanero")
                         clean.append(item)
@@ -575,6 +577,10 @@ class Handler(SimpleHTTPRequestHandler):
             return self.send_html(ui.admin_inbox(user, csrf, data))
         if path == "/admin/settings":
             return self.send_html(ui.admin_settings(user, csrf, data))
+        if path == "/admin/publicidad":
+            ok = (qs.get("ok") or [""])[0] if isinstance(qs, dict) else ""
+            err = (qs.get("err") or [""])[0] if isinstance(qs, dict) else ""
+            return self.send_html(ui.admin_publicidad(user, csrf, data, ok=ok, err=err))
         return self.send_html(ui.not_found(), 404)
 
     # ---------------- Admin POST (API) ----------------
@@ -612,11 +618,8 @@ class Handler(SimpleHTTPRequestHandler):
                 s = d["settings"]
                 for k in ("siteTitle", "tagline", "heroTitle", "heroSubtitle", "contactEmail"):
                     s[k] = (form.get(k) or "").strip()[:400]
-                for k in ("ad1Media", "ad2Media"):
-                    s[k] = (form.get(k) or "").strip()[:300]
-                for k in ("ad1Link", "ad2Link"):
-                    s[k] = (form.get(k) or "").strip()[:300]
-                for k in ("facebook", "x", "instagram", "youtube"):
+                s["contactPhone"] = (form.get("contactPhone") or "").strip()[:40]
+                for k in ("facebook", "x", "instagram", "tiktok", "youtube"):
                     s["social"][k] = (form.get("social_" + k) or "").strip()[:200]
                 if form.get("heroImage"):
                     s["heroImage"] = form["heroImage"][:300]
@@ -640,6 +643,18 @@ class Handler(SimpleHTTPRequestHandler):
             if os.path.isfile(safe):
                 os.remove(safe)
             return self.redirect("/admin/media")
+
+        if path == "/admin/ads/clear":
+            n = 1 if form.get("slot") == "1" else 2
+
+            def fn(d):
+                s = d["settings"]
+                old = (s.get("ad%dMedia" % n) or "").strip()
+                s["ad%dMedia" % n] = ""
+                s["ad%dLink" % n] = ""
+                _remove_ad_file(d, old)
+            mut(fn)
+            return self.redirect("/admin/publicidad")
 
         return self.send_json({"error": "ruta no encontrada"}, 404)
 
@@ -666,7 +681,7 @@ class Handler(SimpleHTTPRequestHandler):
                 item = next((p for p in target if p["id"] == pid), None)
                 if item is None:
                     item = {"id": uuid.uuid4().hex[:10],
-                            "date": payload.get("date") or datetime.now(timezone.utc).strftime("%Y-%m-%d")}
+                            "date": payload.get("date") or ui.oregon_today()}
                     item["slug"] = unique_slug(kind, slugify(payload.get("slug") or title), item["id"])
                     target.append(item)
                 item["title"] = title
@@ -691,7 +706,7 @@ class Handler(SimpleHTTPRequestHandler):
                     item["navOrder"] = int(payload.get("navOrder") or 99)
                 item["status"] = "published" if payload.get("status") == "published" else "draft"
                 if kind == "page" and not item.get("date"):
-                    item["date"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                    item["date"] = ui.oregon_today()
             mut(fn)
             items = store()["posts"] if kind == "post" else store()["pages"]
             item = next((p for p in items if p["title"] == title), items[-1])
@@ -757,13 +772,96 @@ def _admin_upload(self, guard):
         with open(os.path.join(UPLOAD_DIR, safe), "wb") as fh:
             fh.write(data)
         saved.append({"name": fname, "file": safe, "url": "/uploads/" + safe,
-                      "size": len(data), "isVideo": ext in {".mp4", ".webm"}})
+                      "size": len(data), "isVideo": ext in {".mp4", ".webm", ".mov", ".m4v"}})
     if not saved:
         return self.send_json({"error": "sin archivo"}, 400)
     return self.send_json({"ok": True, "files": saved})
 
 
-# parche: enrutar el upload multipart
+def _parse_multipart(ctype: str, body: bytes):
+    """Multipart -> (campos {nombre: valor}, archivos [{name, ext, data}])."""
+    import email
+    msg = email.message_from_bytes(
+        b"Content-Type: " + ctype.encode("latin-1") + b"\r\nMIME-Version: 1.0\r\n\r\n" + body)
+    fields, files = {}, []
+    for part in msg.walk():
+        fname = part.get_filename()
+        if fname:
+            files.append({"name": fname, "ext": os.path.splitext(fname)[1].lower(),
+                          "data": part.get_payload(decode=True) or b""})
+            continue
+        name = part.get_param("name", header="content-disposition")
+        if name:
+            fields[name] = (part.get_payload(decode=True) or b"").decode("utf-8", "replace")
+    return fields, files
+
+
+def _remove_ad_file(d, media_path: str):
+    """Borra un archivo de /uploads cuando ningún anuncio ni el hero lo usan ya."""
+    media_path = (media_path or "").strip()
+    if not media_path.startswith("/uploads/"):
+        return
+    s = d["settings"]
+    refs = {(s.get("ad1Media") or "").strip(), (s.get("ad2Media") or "").strip(),
+            (s.get("heroImage") or "").strip()}
+    if media_path in refs:
+        return
+    safe = os.path.join(UPLOAD_DIR, os.path.basename(media_path))
+    if os.path.isfile(safe):
+        try:
+            os.remove(safe)
+        except OSError:
+            pass
+
+
+def _ads_save(self, guard):
+    """Guardar un espacio publicitario desde la página Publicidad del admin.
+
+    Acepta imagen o video nuevo (multipart). Al reemplazar, el archivo
+    anterior se elimina del disco para no saturar el almacenamiento.
+    """
+    user, sess, csrf = guard
+    ctype = self.headers.get("Content-Type", "")
+    if "boundary=" not in ctype:
+        return self.send_json({"error": "multipart requerido"}, 400)
+    try:
+        body = self.read_body()
+    except ValueError:
+        return self.send_html(ui.admin_publicidad(user, csrf, store(), err="tamano"), 413)
+    fields, files = _parse_multipart(ctype, body)
+    if not verify_csrf(sess, fields.get("_csrf", "")):
+        return self.redirect("/admin/login")
+    try:
+        n = int(fields.get("slot", "0"))
+    except ValueError:
+        n = 0
+    if n not in (1, 2):
+        return self.redirect("/admin/publicidad")
+    link = (fields.get("link") or "").strip()[:300]
+
+    saved_file = None
+    if files and files[0].get("data"):
+        f = files[0]
+        if f["ext"] not in ALLOWED_EXT:
+            return self.send_html(ui.admin_publicidad(user, csrf, store(), err="formato"), 400)
+        if len(f["data"]) > MAX_UPLOAD:
+            return self.send_html(ui.admin_publicidad(user, csrf, store(), err="tamano"), 413)
+        saved_file = uuid.uuid4().hex[:12] + f["ext"]
+        with open(os.path.join(UPLOAD_DIR, saved_file), "wb") as fh:
+            fh.write(f["data"])
+
+    def fn(d):
+        s = d["settings"]
+        if saved_file:
+            old = (s.get("ad%dMedia" % n) or "").strip()
+            s["ad%dMedia" % n] = "/uploads/" + saved_file
+            _remove_ad_file(d, old)  # tras actualizar: borra el anterior si ya nadie lo usa
+        s["ad%dLink" % n] = link
+    mut(fn)
+    return self.redirect("/admin/publicidad?ok=" + str(n))
+
+
+# parche: enrutar uploads multipart
 def _do_POST_with_upload(self):
     path = urlparse(self.path).path
     if path == "/admin/api/upload":
@@ -771,6 +869,11 @@ def _do_POST_with_upload(self):
         if not guard:
             return self.send_json({"error": "no autenticado"}, 401)
         return _admin_upload(self, guard)
+    if path == "/admin/ads/save":
+        guard = self.admin_guard()
+        if not guard:
+            return self.redirect("/admin/login")
+        return _ads_save(self, guard)
     return Handler_doPOST_original(self)
 
 

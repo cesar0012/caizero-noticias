@@ -48,9 +48,15 @@ TOURS = {
     ],
     "settings": [
         {"t": "Su correo de contacto", "d": "Los mensajes del formulario llegarán a este correo. Nota: el primer mensaje pide una activación — abra su correo y pulse el enlace que le llega (solo se hace una vez).", "demo": "campos"},
-        {"t": "Sus redes sociales", "d": "Pegue los enlaces de Facebook o Instagram para que aparezcan en su página, arriba y en el pie.", "demo": "campos"},
-        {"t": "Sus anuncios", "d": "En «Espacios publicitarios» puede poner un banner o video junto al logo y otro debajo de «Últimas noticias». Suba el archivo en Multimedia y pegue su enlace.", "demo": "campos"},
+        {"t": "Sus redes sociales", "d": "Pegue los enlaces de Facebook, Instagram, TikTok o YouTube para que aparezcan en su página, arriba y en el pie.", "demo": "campos"},
+        {"t": "Sus anuncios", "d": "La publicidad se administra en «Publicidad», en el menú de la izquierda. Ahí sube la imagen o el video directamente.", "demo": "campos"},
         {"t": "Cambiar la contraseña", "d": "Más abajo puede poner una contraseña fácil de recordar: 10 o más caracteres, con letras y números.", "demo": "pass"},
+    ],
+    "ads": [
+        {"t": "Sus dos espacios de publicidad", "d": "Esta pantalla controla los dos anuncios del inicio: el 1 va junto al logo (arriba) y el 2 debajo de «Últimas noticias» (columna lateral).", "demo": "campos"},
+        {"t": "Suba la imagen o el video", "d": "Pulse «Elegir archivo» y seleccione la imagen o el video del anunciante. Después pulse «Guardar anuncio» y aparece en la página al instante.", "demo": "media"},
+        {"t": "El enlace del anunciante", "d": "Si el cliente tiene página web, péguela en la casilla «Enlace»: quien toque el anuncio llegará a esa página.", "demo": "campos"},
+        {"t": "Se ve completo, siempre", "d": "El anuncio se ajusta solo: se muestra completo en computadora y en celular, sin cortes. Al subir un archivo nuevo, el anterior se borra automáticamente para no llenar el espacio.", "demo": "media"},
     ],
 }
 
@@ -61,6 +67,7 @@ def admin_shell(user, csrf, title, body, active="", tour=None):
         ("file-text", "/admin/posts", "Noticias", "posts"),
         ("file-text", "/admin/pages", "Páginas", "pages"),
         ("image", "/admin/media", "Multimedia", "media"),
+        ("megaphone", "/admin/publicidad", "Publicidad", "ads"),
         ("inbox", "/admin/inbox", "Bandeja", "inbox"),
         ("settings", "/admin/settings", "Ajustes", "settings"),
     ]
@@ -342,12 +349,84 @@ def admin_media(user, csrf, files):
     <section class="panel">
       <div class="dropzone" data-drop>{icon("upload", 30)}
         <p><b>Arrastra imágenes o videos aquí</b> o</p>
-        <label class="btn primary">{icon("upload", 16)} Elegir archivos<input type="file" multiple hidden accept="image/*,video/mp4,video/webm"></label>
-        <p class="muted small">JPG, PNG, WebP, GIF, MP4, WebM · hasta 220 MB por archivo</p>
+        <label class="btn primary">{icon("upload", 16)} Elegir archivos<input type="file" multiple hidden accept="image/*,video/mp4,video/webm,video/quicktime"></label>
+        <p class="muted small">JPG, PNG, WebP, GIF · MP4, WebM, MOV · hasta 220 MB por archivo</p>
       </div>
       <div class="media-grid">{cards or '<p class="muted">Todavía no hay archivos. Sube el primero.</p>'}</div>
     </section>'''
     return admin_shell(user, csrf, "Multimedia", body, "media")
+
+
+# ---------------- Publicidad (espacios del inicio) ----------------
+_AD_GUIDES = {
+    1: ("Espacio 1 — junto al logo (parte superior)",
+        "Se muestra a lo ancho del encabezado, a la derecha del logo, en todas las páginas.",
+        "imagen horizontal de 1200 × 150 px (o video ancho). En celular se adapta solo."),
+    2: ("Espacio 2 — columna lateral (inicio)",
+        "Aparece debajo de «Últimas noticias», en la columna derecha de la página de inicio.",
+        "imagen vertical de 600 × 800 px o cuadrada de 600 × 600 px; video vertical 9:16 o cuadrado."),
+}
+
+
+def admin_publicidad(user, csrf, data, ok="", err=""):
+    s = data["settings"]
+    fmt = "Formatos: JPG, PNG, GIF, WEBP (imágenes) · MP4, WEBM, MOV (videos). Máximo 220 MB."
+    banners = ""
+    if ok:
+        banners += ('<div class="ok-note">' + icon("check", 16) +
+                    f' Espacio {esc(ok)} actualizado. Ya está visible en la página.</div>')
+    if err == "formato":
+        banners += ('<div class="err-note">Ese formato no está permitido. ' + fmt + '</div>')
+    elif err == "tamano":
+        banners += ('<div class="err-note">El archivo es demasiado grande (máximo 220 MB). '
+                    'Sugerencia: baje la resolución del video o recórtelo a menos de 2 minutos.</div>')
+
+    cards = ""
+    for n in (1, 2):
+        title, how, reco = _AD_GUIDES[n]
+        media = (s.get("ad%dMedia" % n) or "").strip()
+        link = (s.get("ad%dLink" % n) or "").strip()
+        ext = media.lower().rsplit(".", 1)[-1] if media else ""
+        if media and ext in {"mp4", "webm", "mov", "m4v"}:
+            preview = f'<video src="{esc(media)}" controls muted loop playsinline preload="metadata"></video>'
+        elif media:
+            preview = f'<img src="{esc(media)}" alt="Anuncio actual del espacio {n}">'
+        else:
+            preview = '<div class="ad-empty">Espacio vacío.<br>En la página no se muestra ningún anuncio aquí.</div>'
+        state = ('<span class="ad-state on">' + icon("check", 14) + ' Publicado</span>' if media
+                 else '<span class="ad-state off">Vacío</span>')
+        cards += f'''
+    <section class="panel ad-card">
+      <header class="ad-head"><h2>{icon("megaphone", 20)} {title}</h2>{state}</header>
+      <div class="ad-preview">{preview}</div>
+      <p class="hint">{how}</p>
+      <p class="hint"><b>Tamaño recomendado:</b> {reco}</p>
+      <form method="post" action="/admin/ads/save" enctype="multipart/form-data" class="ad-form">
+        <input type="hidden" name="_csrf" value="{esc(csrf)}">
+        <input type="hidden" name="slot" value="{n}">
+        <label>Imagen o video del anuncio
+          <input type="file" name="file" accept="image/*,video/mp4,video/webm,video/quicktime"></label>
+        <p class="hint small">{fmt} Al subir un archivo nuevo, el anterior se elimina automáticamente.</p>
+        <label>Enlace al hacer clic (opcional)
+          <input type="url" name="link" value="{esc(link)}" placeholder="https://el-anunciante.com"></label>
+        <div class="ad-actions">
+          <button class="btn primary" type="submit">{icon("upload", 16)} Guardar anuncio</button>
+        </div>
+      </form>
+      <form method="post" action="/admin/ads/clear" class="ad-clear"
+            onsubmit="return confirm('¿Quitar este anuncio? Dejará el espacio vacío.')">
+        <input type="hidden" name="_csrf" value="{esc(csrf)}">
+        <input type="hidden" name="slot" value="{n}">
+        <button class="btn ghost danger" type="submit">{icon("trash-2", 14)} Quitar este anuncio</button>
+      </form>
+    </section>'''
+    body = f'''
+    <header class="ahead"><h1>Publicidad</h1>
+      <p class="page-sub">Aquí controla los dos anuncios del inicio. Puede usar una imagen o un video.
+      Se ajustan solos para verse completos en computadora y celular, sin cortes.</p></header>
+    {banners}
+    {cards}'''
+    return admin_shell(user, csrf, "Publicidad", body, "ads", tour="ads")
 
 
 def admin_inbox(user, csrf, data):
@@ -387,23 +466,16 @@ def admin_settings(user, csrf, data, error=None):
         <label>Título grande del inicio<input name="heroTitle" type="text" value="{esc(s.get('heroTitle', ''))}"></label>
         <label>Subtítulo del inicio<textarea name="heroSubtitle" rows="2">{esc(s.get('heroSubtitle', ''))}</textarea></label>
         <label>Imagen de fondo del inicio (URL o subir en Multimedia)<input name="heroImage" type="text" value="{esc(s.get('heroImage', ''))}" placeholder="/uploads/…"></label>
-        <h2 class="mt">Espacios publicitarios</h2>
-        <p class="page-sub">Dos espacios para anuncios: el 1 va junto al logo y el 2 debajo de «Últimas noticias».
-        Suba la imagen o el video en Multimedia, pegue aquí su enlace y (si quiere) la página web del anunciante.
-        Si deja el campo vacío no se muestra nada.</p>
-        <div class="meta-grid">
-          <label>Espacio 1 — imagen o video (URL)<input name="ad1Media" type="text" value="{esc(s.get('ad1Media', ''))}" placeholder="/uploads/mi-banner.jpg o .mp4"></label>
-          <label>Espacio 1 — enlace al hacer clic (opcional)<input name="ad1Link" type="url" value="{esc(s.get('ad1Link', ''))}" placeholder="https://el-anunciante.com"></label>
-          <label>Espacio 2 — imagen o video (URL)<input name="ad2Media" type="text" value="{esc(s.get('ad2Media', ''))}" placeholder="/uploads/mi-banner2.jpg o .mp4"></label>
-          <label>Espacio 2 — enlace al hacer clic (opcional)<input name="ad2Link" type="url" value="{esc(s.get('ad2Link', ''))}" placeholder="https://el-anunciante.com"></label>
-        </div>
-        <h2 class="mt">Correo de contacto</h2>
-        <label>Los mensajes del formulario también se reenvían a este correo<input name="contactEmail" type="email" value="{esc(s.get('contactEmail', ''))}" placeholder="contacto@tudominio.com"></label>
+        <p class="hint">La publicidad del inicio se administra en «Publicidad», en el menú de la izquierda.</p>
+        <h2 class="mt">Correo y teléfono de contacto</h2>
+        <label>Correo — los mensajes del formulario también se reenvían aquí<input name="contactEmail" type="email" value="{esc(s.get('contactEmail', ''))}" placeholder="contacto@tudominio.com"></label>
+        <label>Teléfono — se muestra en Contacto y en el pie<input name="contactPhone" type="text" value="{esc(s.get('contactPhone', ''))}" placeholder="971-000-0000"></label>
         <h2 class="mt">Redes sociales</h2>
         <div class="meta-grid">
           <label>Facebook<input name="social_facebook" type="url" value="{esc(social.get('facebook', ''))}" placeholder="https://facebook.com/…"></label>
           <label>X (Twitter)<input name="social_x" type="url" value="{esc(social.get('x', ''))}" placeholder="https://x.com/…"></label>
           <label>Instagram<input name="social_instagram" type="url" value="{esc(social.get('instagram', ''))}" placeholder="https://instagram.com/…"></label>
+          <label>TikTok<input name="social_tiktok" type="url" value="{esc(social.get('tiktok', ''))}" placeholder="https://tiktok.com/@…"></label>
           <label>YouTube<input name="social_youtube" type="url" value="{esc(social.get('youtube', ''))}" placeholder="https://youtube.com/@…"></label>
         </div>
         <button class="btn primary" type="submit">{icon("save", 16)} Guardar ajustes</button>

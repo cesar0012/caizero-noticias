@@ -295,3 +295,28 @@ h2{font-size:1.05rem;font-weight:800}
   .help-fab{padding:.9rem}
   .tour-card{padding:1.1rem}
 }
+
+
+/* ---------------- Publicidad ---------------- */
+.ok-note{display:flex;align-items:center;gap:.5rem;background:rgba(61,220,151,.12);color:var(--ok);
+  border:1px solid rgba(61,220,151,.4);border-radius:12px;padding:.7rem 1rem;font-weight:600;margin-bottom:1rem}
+.err-note{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.4);
+  border-radius:12px;padding:.7rem 1rem;font-weight:600;margin-bottom:1rem}
+.ad-card{display:grid;gap:.9rem}
+.ad-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap}
+.ad-head h2{margin:0;font-size:1.1rem;display:flex;align-items:center;gap:.5rem}
+.ad-state{font-size:.8rem;font-weight:700;border-radius:999px;padding:.2rem .7rem;border:1px solid var(--line);color:var(--muted)}
+.ad-state.on{color:var(--ok);border-color:rgba(61,220,151,.4);background:rgba(61,220,151,.1)}
+.ad-preview{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.6rem;
+  display:flex;justify-content:center;align-items:center;min-height:90px;overflow:hidden}
+.ad-preview img,.ad-preview video{max-width:100%;max-height:220px;object-fit:contain;border-radius:6px}
+.ad-empty{color:var(--muted);text-align:center;font-size:.95em;padding:1.2rem}
+.ad-form{display:grid;gap:.9rem}
+.ad-form input[type="file"]{margin-top:.3rem}
+.ad-actions{display:flex;gap:.8rem;flex-wrap:wrap}
+.ad-clear{border-top:1px dashed var(--line);padding-top:.9rem}
+.btn.danger{color:var(--red);border-color:rgba(255,107,107,.4)}
+.btn.danger:hover{background:rgba(255,107,107,.08)}
+@media (max-width:640px){
+  .ad-preview img,.ad-preview video{max-height:160px}
+}
