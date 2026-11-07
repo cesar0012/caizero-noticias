@@ -78,7 +78,8 @@ DEFAULT_SETTINGS = {
     "contactPhone": "971-392-5439",
     "social": {"facebook": "https://www.facebook.com/elsolcaizero", "x": "",
               "instagram": "https://www.instagram.com/elsolmananeroconcaizero/",
-              "tiktok": "https://www.tiktok.com/foryou?lang=en", "youtube": ""},
+              "tiktok": "https://www.tiktok.com/foryou?lang=en",
+              "youtube": "https://www.youtube.com/channel/UC2YVzrFmaO5q1UVLjDM-UaA"},
 }
 
 

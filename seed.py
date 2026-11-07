@@ -18,7 +18,7 @@ SOCIAL_DEFAULTS = {
     "x": "",
     "instagram": "https://www.instagram.com/elsolmananeroconcaizero/",
     "tiktok": "https://www.tiktok.com/foryou?lang=en",
-    "youtube": "",
+    "youtube": "https://www.youtube.com/channel/UC2YVzrFmaO5q1UVLjDM-UaA",
 }
 
 
