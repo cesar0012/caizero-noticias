@@ -13,7 +13,7 @@ from datetime import datetime, timedelta, timezone, date
 
 E = html.escape
 
-BRAND = "El Mañanero con Caizero"
+BRAND = "El Mañanero con Kawayashi"
 CATS = ["Noticias", "Deportes", "Salud y Belleza", "Personalidades Locales", "Comunidad", "Eventos"]
 ASSET_V = "12"
 

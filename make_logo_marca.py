@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Logo 'El Mañanero con Caizero' + renombrar rellenos publicitarios."""
+"""Logo 'El Mañanero con Kawayashi' + renombrar rellenos publicitarios."""
 from PIL import Image, ImageDraw, ImageFont
 
 logo = Image.open("img/logo.png")
@@ -29,14 +29,14 @@ pad = int(emblem.height * 0.12)
 emb_pad = Image.new("RGBA", (emblem.width + pad * 2, emblem.height + pad * 2), (0, 0, 0, 0))
 emb_pad.alpha_composite(emblem, (pad, pad))
 
-# --- composicion: emblema + EL MANANERO + CON CAIZERO debajo ---
+# --- composicion: emblema + EL MANANERO + CON KAWAYASHI debajo ---
 H = 570
 emb_r = emb_pad.resize((int(emb_pad.width * 500 / emb_pad.height), 500), Image.LANCZOS)
 W1 = 1850
 w1r = word.resize((W1, int(word.height * W1 / word.width)), Image.LANCZOS)
 
 # linea 2 dibujada con tracking para igualar el ancho de la linea 1
-line2 = "CON CAIZERO"
+line2 = "CON KAWAYASHI"
 font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 96)
 no_sp = ImageDraw.Draw(Image.new("RGB", (10, 10))).textlength(line2, font=font)
 n = len(line2) - 1

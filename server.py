@@ -65,7 +65,7 @@ def load_secret() -> bytes:
 SECRET = load_secret()
 
 DEFAULT_SETTINGS = {
-    "siteTitle": "El Mañanero con Caizero",
+    "siteTitle": "El Mañanero con Kawayashi",
     "ad1Media": "/img/pub-filler-top.png",
     "ad1Link": "",
     "ad2Media": "/img/pub-filler-rail.png",
@@ -74,10 +74,10 @@ DEFAULT_SETTINGS = {
     "heroTitle": "Deportes sin filtro, todas las mañanas",
     "heroSubtitle": "Noticias, opinión y video del deporte dominicano y del mundo. Directo, sin rodeos y con la pasión que el juego merece.",
     "heroImage": "",
-    "contactEmail": CONTACT_EMAIL or "Caizeronews@gmail.com",
+    "contactEmail": CONTACT_EMAIL or "Kawayashinews@gmail.com",
     "contactPhone": "971-392-5439",
-    "social": {"facebook": "https://www.facebook.com/elsolcaizero", "x": "",
-              "instagram": "https://www.instagram.com/elsolmananeroconcaizero/",
+    "social": {"facebook": "https://www.facebook.com/elsolkawayashi", "x": "",
+              "instagram": "https://www.instagram.com/elsolmananeroconkawayashi/",
               "tiktok": "https://www.tiktok.com/foryou?lang=en",
               "youtube": "https://www.youtube.com/channel/UC2YVzrFmaO5q1UVLjDM-UaA"},
 }

@@ -14,9 +14,9 @@ from datetime import date, timedelta
 DEMO_TAGLINE = "Tu Guía Local: Noticias, Deportes y Comunidad en Oregón"
 
 SOCIAL_DEFAULTS = {
-    "facebook": "https://www.facebook.com/elsolcaizero",
+    "facebook": "https://www.facebook.com/elsolkawayashi",
     "x": "",
-    "instagram": "https://www.instagram.com/elsolmananeroconcaizero/",
+    "instagram": "https://www.instagram.com/elsolmananeroconkawayashi/",
     "tiktok": "https://www.tiktok.com/foryou?lang=en",
     "youtube": "https://www.youtube.com/channel/UC2YVzrFmaO5q1UVLjDM-UaA",
 }
@@ -98,7 +98,7 @@ def content():
               "Deportes", "deportes",
               "De Portland State a University of Oregon: la lista de la juventud quisqueyana "
               "que está dejando el nombre alto en el deporte universitario.",
-              "Enrique Caizero", 3,
+              "Enrique Kawayashi", 3,
               [{"t": "p", "text": "La diáspora dominicana en Oregón tiene nuevo motivo de orgullo: una camada "
                                  "de atletas universitarios que suma minutos, puntos y récords en la NCAA."},
                {"t": "p", "text": "Seguiremos de cerca sus estadísticas cada semana, con entrevistas a sus "
@@ -170,7 +170,7 @@ def content():
               "Personalidades Locales", "personalidades",
               "Maestro de escuela de día, locutor de madrugada siempre. Recorremos la vida "
               "del hombre detrás del micrófono que acompaña las mañanas de la comunidad.",
-              "Enrique Caizero", 2,
+              "Enrique Kawayashi", 2,
               [{"t": "p", "text": "Su alarma suena a las 3:30 AM. A las 5:00 ya está al aire, repasando la "
                                  "noche deportiva con el mismo entusiasmo de hace veinte años."},
                {"t": "h", "text": "Del aula al estudio"},
@@ -255,7 +255,7 @@ def content():
               "Video: entrevista completa con 'El Profesor'",
               "Personalidades Locales", "video",
               "Cuarenta años de béisbol contados en veinte minutos, sin prisas y sin filtros.",
-              "Enrique Caizero", 4,
+              "Enrique Kawayashi", 4,
               [{"t": "video", "src": V, "cap": "Sentado a conversar, como cada mañana."}],
               video=True),
         _post("video-clinica-beisbol-hillsboro",
@@ -311,7 +311,7 @@ def enrich(store):
     if not s.get("tagline"):
         s["tagline"] = DEMO_TAGLINE
     if not s.get("contactEmail"):
-        s["contactEmail"] = "Caizeronews@gmail.com"
+        s["contactEmail"] = "Kawayashinews@gmail.com"
     if not s.get("contactPhone"):
         s["contactPhone"] = "971-392-5439"
     if not s.get("ad1Media"):
