@@ -432,8 +432,13 @@ def home(base, settings, posts):
             rail_posts.append(max(cands, key=lambda p: (p.get("date", ""), orden[id(p)])))
     latest = rail_posts
     rail_ids = {id(p) for p in rail_posts}
-    remaining = [p for p in rest if id(p) not in rail_ids]
-    grid = remaining[:6]
+    # Más noticias: la SIGUIENTE más reciente de cada sección (sin repetir el panel)
+    grid_posts = []
+    for c in ["Deportes", "Noticias", "Eventos", "Comunidad", "Personalidades Locales", "Salud y Belleza"]:
+        cands = [p for p in rest if p.get("category") == c and id(p) not in rail_ids]
+        if cands:
+            grid_posts.append(max(cands, key=lambda p: (p.get("date", ""), orden[id(p)])))
+    grid = grid_posts[:6]
     used = {id(p) for p in (latest + grid)}
     by_cat = {c: [p for p in rest if p.get("category") == c and id(p) not in used][:2] for c in CATS}
     videos = [p for p in published if p.get("kind") == "video" or
